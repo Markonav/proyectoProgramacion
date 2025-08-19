@@ -17,8 +17,5 @@ El problema que nosotros planteamos es sobre la gestión de libros en una librer
 - **Base de Datos:** MySQL / PostgreSQL  
 - **Control de versiones:** GitHub
 
-## Requisitos funcionales
 
-
-## Requisitos no funcionales
 
