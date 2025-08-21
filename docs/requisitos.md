@@ -9,13 +9,13 @@
 - Debe tener un registro de lectura personal
 - Debe tener una seccion de reseñas
 - Los usuarios tienen que tener roles (administrador, usuario cliente)
-
+- Una seccion de ranking de libros
 
 
 ## Requisitos no funcionales
-- **Eficiencia:** Las consultas de búsqueda y filtrado de inventario deben completarse en menos de 1 segundo.
+- **Eficiencia:** Las consultas de búsqueda y filtrado de inventario deben completarse en menos de 2 segundo.
 - **Usabilidad:** La interfaz debe ser intuitiva para el usuario
-- **Seguridad:** 
+- **Seguridad:** El sistema tiene que tener autenticacion del usuario 
 - **Escalabilidad:** El sitio debe poder soportar tener una cantinad razonable de usuarios sin que colapse el sistema
 - **Almacenamiento:** Debe poder almacenar los datos de los usuarios y de los libros
 - **Mantenibilidad:** El código fuente debe estar bien documentado y seguir las mejores prácticas de programación para facilitar futuras actualizaciones
