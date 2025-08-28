@@ -3,7 +3,6 @@
 ## Requisitos funcionales
 - El sistema debe tener filtro por categorias
 - El sistema debe tener buscador por texto
-- El sistema debe permitir subir y eliminar libros/novelas
 - El sistema debe permitir a los usuarios registrarse e iniciar sesion
 - Debe permitir al usuario rentar libros
 - Debe tener un registro de lectura personal
@@ -11,7 +10,7 @@
 - Los usuarios tienen que tener roles (administrador, autor, lector)
 - Tiene que tener una seccion de ranking de libros
 - Los administradores pueden eliminar contenido inapropiado
-- Los autores pueden crear, editar y eliminar sus novelas
+- Los autores pueden crear, subir, editar y eliminar sus novelas
 
 
 ## Requisitos no funcionales
