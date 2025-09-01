@@ -5,12 +5,11 @@ El flujo de información sigue el orden:
 
 ```mermaid
 flowchart TD
-    A["Routers"] --> B["Controllers"]
-    B --> A & C["Services"]
-    C --> B & D["Data"]
+    A(["Routers"]) --> B(["Controllers"])
+    B --> A & C(["Services"])
+    C --> B & D(["Data"])
     D --> C
 ```
-
 ### Routes
 - Este modulo se encarga de definir las rutas de la API
 
