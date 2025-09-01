@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "titulo": "La noche",
+    "autor": "Pedrito",
+    "PrecioRenta": 3000
+  },
+  {
+    "id": 2,
+    "titulo": "El dia",
+    "autor": "Maria Juarez",
+    "PrecioRenta": 1500
+  }
+]
