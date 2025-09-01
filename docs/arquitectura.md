@@ -6,7 +6,7 @@ El flujo de información sigue el orden:
 ```mermaid
 ---
 config:
-  theme: base
+  theme: neo-dark
   look: neo
 ---
 flowchart TD
