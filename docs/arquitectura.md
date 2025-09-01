@@ -4,6 +4,11 @@ El sistema está diseñado siguiendo una arquitectura en **cuatro capas**, donde
 El flujo de información sigue el orden:
 
 ```mermaid
+---
+config:
+  theme: base
+  look: neo
+---
 flowchart TD
     A(["Routers"]) --> B(["Controllers"])
     B --> A & C(["Services"])
