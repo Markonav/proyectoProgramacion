@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GestorLibros – Perfil</title>
+
+  <link rel="stylesheet" href="estilo_base/style.css">
+  <link rel="stylesheet" href="estilo_base/header.css">
+  <link rel="stylesheet" href="estilo_base/footer.css">
+  <link rel="stylesheet" href="css/perfil.css">
+  <link rel="stylesheet" href="css/cuenta.css">
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="logo"> 
+          <img src="" alt="Logo"> 
+      </div>
+      <nav class="menu">
+        <a href="Tendencia.html">En Tendencia</a>
+        <a href="masLeidos.html">Más Leídos</a>
+        <a href="catalogo.html">Todos los Libros</a>
+        <a href="categorias.html">Categorías</a>
+      </nav>
+      <div class="user-tools">
+        <input type="text" placeholder="Buscar">
+        <a href="#">Carrito</a>
+        <a href="perfil.html">Mi Cuenta</a>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PERFIL -->
+    <main class="perfil">
+      <h1 class="perfil__title">Perfil</h1>
+
+      <div class="perfil__grid">
+        <!-- Sidebar -->
+        <aside class="perfil__sidebar card">
+          <nav class="perfil__nav">
+            <a href="perfil.html">Editar Perfil</a>
+            <a href="cuenta.html">Cuenta</a>    
+            <a href="favoritos.html">Favoritos</a>
+          </nav>
+        <div class="sidebar-action">
+            <a href="agregarnuevo.html" class="btn">Administrar Libros</a>
+        </div>
+        <div class="sidebar-action">
+            <a href="prueba.html" class="btn">Cerrar Sesión</a>
+        </div>
+        </aside>
+
+        <!-- Contenido -->
+        <section class="perfil__content">
+          <!-- Configuración de privacidad -->
+          <div class="perfil__panel card">
+            <h2 class="panel__title">Privacidad</h2>
+            
+            <div class="config-section">
+              <h3>Visibilidad del perfil</h3>
+              <div class="toggle-label">
+                <span>Perfil público</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-label">
+                <span>Mostrar libros leídos</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-label">
+                <span>Mostrar favoritos</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configuración de notificaciones -->
+          <div class="perfil__panel card">
+            <h2 class="panel__title">Notificaciones</h2>
+            
+            <div class="config-section">
+              <h3>Preferencias de notificación</h3>
+              <div class="toggle-label">
+                <span>Notificaciones por email</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-label">
+                <span>Novedades de autores seguidos</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-label">
+                <span>Ofertas y promociones</span>
+                <label class="toggle-switch">
+                  <input type="checkbox">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configuración de seguridad -->
+          <div class="perfil__panel card">
+            <h2 class="panel__title">Seguridad</h2>
+            
+            <div class="config-section">
+              <h3>Cambiar contraseña</h3>
+              <form class="perfil__form">
+                <div class="form-group">
+                  <label>Contraseña actual</label>
+                  <input type="password" placeholder="Ingresa tu contraseña actual" required />
+                </div>
+                <div class="form-group">
+                  <label>Nueva contraseña</label>
+                  <input type="password" placeholder="Ingresa tu nueva contraseña" required />
+                </div>
+                <div class="form-group">
+                  <label>Confirmar nueva contraseña</label>
+                  <input type="password" placeholder="Confirma tu nueva contraseña" required />
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn">Cambiar Contraseña</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Configuración de eliminación de cuenta -->
+          <div class="perfil__panel card">
+            <h2 class="panel__title">Eliminar Cuenta</h2>
+            
+            <div class="config-section">
+              <p>Una vez que elimines tu cuenta, no podrás recuperarla. Todos tus datos, favoritos y configuraciones se perderán permanentemente.</p>
+              <div class="form-actions">
+                <button type="button" class="btn" style="background-color: #c25454;">Eliminar Cuenta</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>GestorLibros ©20xx</p>
+    </footer>
+  </div>
+  <script src="js/slidebarCuenta.js"></script>
+</body>
+</html>
