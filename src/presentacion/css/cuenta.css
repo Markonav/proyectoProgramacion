@@ -1,0 +1,109 @@
+/* CONTENIDO CUENTA - CSS ESPECÍFICO */
+
+/* Configuración de cuenta */
+.config-section {
+  margin-bottom: 30px;
+}
+
+.config-section h3 {
+  margin-bottom: 15px;
+  color: var(--c-primary);
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+/* Toggle switches */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--c-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+/* Estilos para la sección de eliminación de cuenta */
+.config-section p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+  color: #666;
+}
+
+/* Botón de eliminar cuenta con estilo diferente */
+.btn[style*="background-color: #c25454"] {
+  background-color: #c25454 !important;
+}
+
+.btn[style*="background-color: #c25454"]:hover {
+  background-color: #a94444 !important;
+}
+
+/* Formulario de cambio de contraseña específico */
+.perfil__form .form-group input[type="password"] {
+  letter-spacing: 1px;
+}
+
+/* Estilos para secciones de configuración */
+.config-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive para página de cuenta */
+@media (max-width: 768px) {
+  .toggle-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .toggle-switch {
+    align-self: flex-end;
+  }
+  
+  .config-section h3 {
+    font-size: 16px;
+  }
+}
