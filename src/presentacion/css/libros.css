@@ -1,0 +1,110 @@
+/* Fondo general de sección de libros */
+.libros-section{ 
+  flex:1; 
+  display:flex; 
+  flex-direction:column;
+  align-items:center; 
+  justify-content:flex-start; 
+  padding:40px; 
+  background:var(--c-bg); 
+  color:var(--c-dark); 
+}
+
+h2{ 
+  color:var(--c-primary); 
+  font-size:28px; 
+  margin-bottom:12px; 
+  text-align:center; 
+}
+
+/* Contenedor tabla / tarjetas */
+.tabla-container{ 
+  background:#fff; 
+  padding:25px; 
+  border-radius:10px; 
+  box-shadow:0 6px 16px rgba(196,145,124,.12); 
+  width:90%; 
+  max-width:1000px; 
+  border:1px solid #e9e3d9; 
+}
+
+/* Tabla */
+#tablaLibros{ 
+  width:100%; 
+  border-collapse:collapse; 
+}
+#tablaLibros th,#tablaLibros td{ 
+  padding:12px; 
+  border:1px solid #e5e5e5; 
+  text-align:center; 
+}
+#tablaLibros th{ 
+  background:var(--c-primary); 
+  color:#fff; 
+}
+
+/* Formulario */
+.card,.form-box{ 
+  background:#fff; 
+  padding:20px; 
+  border-radius:10px; 
+  box-shadow:0 6px 16px rgba(196,145,124,.12); 
+  max-width:520px; 
+  border:1px solid #e9e3d9; 
+}
+input{ 
+  width:100%; 
+  padding:10px; 
+  border:1px solid #d6dce1; 
+  border-radius:6px; 
+}
+input:focus{ 
+  outline:none; 
+  border-color:#ccb4a8; 
+  box-shadow:0 0 0 3px rgba(196,145,124,.15); 
+}
+
+/* Botones */
+button,.btn{ 
+  background:var(--c-primary); 
+  color:#fff; 
+  border:0; 
+  border-radius:8px; 
+  padding:10px 20px; 
+  font-weight:800; 
+  cursor:pointer; 
+}
+button:hover,.btn:hover{ 
+  background:var(--c-dark); 
+}
+
+/* Mensajes */
+#mensaje{ 
+  margin:14px 0 0; 
+  font-weight:bold; 
+}
+
+/* Estados visuales (S5) */
+.state{ 
+  margin:12px 0; 
+  padding:12px 14px; 
+  border-radius:6px; 
+  text-align:center; 
+  background:#f3f6f7; 
+  color:var(--c-dark); 
+  border:1px solid #e6ecef; 
+  font-size:14px; 
+}
+.state.error{ 
+  background:#ffe9e9; 
+  border-color:#f3b7b7; 
+  color:#8a1f1f; 
+} 
+.state.empty{ 
+  background:#fffbe6; 
+  border-color:#f0e3a0; 
+  color:#6b5d00; 
+}
+
+
+
