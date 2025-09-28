@@ -1,0 +1,109 @@
+/* ============================
+   ESTILOS TARJETAS FAVORITOS
+   ============================ */
+
+/* Grid de libros */
+.libros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 26px;
+  margin-top: 20px;
+}
+
+/* Tarjeta estilo catálogo */
+.libro-card {
+  background: #fff;
+  border: 1px solid #e9e3d9;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 6px 16px rgba(196,145,124,0.12);
+}
+
+.libro-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Imagen del libro (mantiene el estilo original) */
+.libro-img {
+  height: 190px;
+  background: #f2f4f6;
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  border-bottom: 1px solid #e6ecef;
+}
+
+/* Información del libro */
+.libro-info {
+  background: #fff;
+  padding: 14px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.libro-titulo {
+  color: var(--c-primary);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.libro-autor {
+  color: #6c6f5d;
+  font-size: 14px;
+}
+
+/* Botones */
+.libro-acciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-small {
+  background: var(--c-primary);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-small:hover {
+  background: var(--c-dark);
+}
+
+/* Corazón */
+.icon-btn {
+  margin-left: auto;
+  border: 1px solid #e6d6cb;
+  background: #fff;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--c-dark);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.icon-btn:hover {
+  background: #fff6f2;
+  border-color: #e7c7b7;
+}
+.icon-btn.active {
+  color: #e53935;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .libros-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
