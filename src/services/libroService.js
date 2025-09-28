@@ -20,7 +20,6 @@ function listarLibros() {
   return leerLibros();
 }
 
-<<<<<<< HEAD
 function listarLibrosPorCategoria(categoria) {
   const libros = leerLibros();
   return libros.filter(l => l.categoria && l.categoria.toLowerCase() === categoria.toLowerCase());
@@ -33,6 +32,4 @@ function listarCategorias() {
 }
 
 module.exports = { agregarLibro, listarLibros, listarLibrosPorCategoria, listarCategorias };
-=======
-module.exports = { agregarLibro, listarLibros };
->>>>>>> 65413102a9dba7ace4391a77a7051330bbe1d542
+
