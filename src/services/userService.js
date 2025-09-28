@@ -1,34 +1,82 @@
-const { leerUsuarios, escribirUsuarios } = require('../data/data');
+// src/services/userService.js
+let bcrypt;
+try { bcrypt = require('bcrypt'); }
+catch { bcrypt = require('bcryptjs'); }  // fallback en Windows/Node sin toolchain
 
-function registrarUsuario(email, password) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !password) throw new Error('Correo y contraseña son requeridos');
-  if (!emailRegex.test(email)) throw new Error('El correo no es válido');
-  if (password.length < 6 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
-    throw new Error('La contraseña debe tener al menos 6 caracteres e incluir letras y números');
+const { leerUsuarios, escribirUsuarios } = require('../data/usersStore');
+
+const SALT_ROUNDS = 10;
+
+const normEmail = (e = '') => String(e).trim().toLowerCase();
+const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+const validPass = (p) => {
+  const s = String(p ?? '');
+  return s.length >= 6 && /[A-Za-z]/.test(s) && /\d/.test(s);
+};
+
+function validarCredenciales(email, password) {
+  if (!validEmail(email)) {
+    const err = new Error('Correo inválido');
+    err.status = 400;
+    throw err;
   }
-
-  const users = leerUsuarios();
-  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-    throw new Error('El correo ya está registrado');
+  if (!validPass(password)) {
+    const err = new Error('La contraseña debe tener 6+ caracteres con letras y números');
+    err.status = 400;
+    throw err;
   }
-
-  users.push({ email: email.trim(), password: password.trim() });
-  escribirUsuarios(users);
-
-  return { email };
 }
 
-function loginUsuario(email, password) {
-  if (!email || !password) throw new Error('Correo y contraseña son requeridos');
+async function registrarUsuario({ email, password }) {
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  validarCredenciales(e, password);
 
-  const users = leerUsuarios();
-  const user = users.find(
-    u => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password.trim()
-  );
+  if (usuarios.some(u => normEmail(u.email) === e)) {
+    const err = new Error('El correo ya está registrado');
+    err.status = 409;
+    throw err;
+  }
 
-  if (!user) throw new Error('Correo o contraseña incorrectos');
-  return user;
+  const passwordHash = await bcrypt.hash(String(password), SALT_ROUNDS);
+  const nuevo = { email: e, passwordHash, createdAt: new Date().toISOString() };
+
+  usuarios.push(nuevo);
+  escribirUsuarios(usuarios);
+
+  // Nunca expongas el hash
+  const { passwordHash: _discard, ...safe } = nuevo;
+  return safe;
+}
+
+async function loginUsuario({ email, password }) {
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  const pass = String(password ?? '');
+
+  const user = usuarios.find(u => normEmail(u.email) === e);
+  if (!user) {
+    const err = new Error('Correo o contraseña incorrectos');
+    err.status = 401;
+    throw err;
+  }
+
+  // Migración automática si existiera un campo legacy "password" sin hash
+  if (!user.passwordHash && user.password && !String(user.password).startsWith('$2')) {
+    user.passwordHash = await bcrypt.hash(String(user.password), SALT_ROUNDS);
+    delete user.password;
+    escribirUsuarios(usuarios);
+  }
+
+  const ok = await bcrypt.compare(pass, user.passwordHash || '');
+  if (!ok) {
+    const err = new Error('Correo o contraseña incorrectos');
+    err.status = 401;
+    throw err;
+  }
+
+  const { passwordHash: _ph, password: _p, ...safe } = user;
+  return safe;
 }
 
 module.exports = { registrarUsuario, loginUsuario };

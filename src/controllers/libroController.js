@@ -1,4 +1,4 @@
-const { agregarLibro, listarLibros } = require('../services/libroService');
+const { agregarLibro, listarLibros, eliminarLibro } = require('../services/libroService');
 
 function addLibro(req, res) {
   try {
@@ -31,4 +31,20 @@ function getLibros(req, res) {
   }
 }
 
-module.exports = { addLibro, getLibros };
+function deleteLibro(req, res) {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+    const ok = eliminarLibro(id);
+    if (!ok) return res.status(404).json({ message: 'Libro no encontrado' });
+    return res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error al eliminar libro' });
+  }
+}
+
+module.exports = { addLibro, getLibros, deleteLibro };
+
