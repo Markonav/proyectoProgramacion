@@ -1,7 +1,6 @@
 /* contenedor principal */
 .perfil{ 
-  padding:40px; 
-  background:#fff; 
+  padding:40px;  
 }
 /* Título */
 .perfil__title{ 
@@ -35,9 +34,12 @@
   color:var(--c-dark); 
   text-decoration:none; 
 }
+.perfil__nav a:hover{
+  background:#fff1ea; 
+  font-weight:700; 
+}
 .perfil__nav a.active{ 
   background:#fff1ea; 
-  border:1px solid #e9d2c7; 
   font-weight:700; 
 }
 
