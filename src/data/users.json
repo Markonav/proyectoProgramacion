@@ -26,5 +26,18 @@
   {
     "email": "MSdjfohfu@gmail.com",
     "password": "Jioj23"
+  },
+  {
+    "email": "pepe@gmail.com",
+    "password": "bstn12345"
+  },
+  {
+    "email": "tomas@gmail.com",
+    "password": "bstn12345"
+  },
+  {
+    "email": "tomas123@gmail.com",
+    "passwordHash": "$2b$10$P4YHrftL5Vy/L8nWQ4eVNOE8svIe3hP6xD5bLyH7sOQvFoQ9JcWPO",
+    "createdAt": "2025-09-28T22:21:22.947Z"
   }
 ]

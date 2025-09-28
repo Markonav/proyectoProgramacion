@@ -1,23 +1,25 @@
+// src/controllers/userController.js
 const { registrarUsuario, loginUsuario } = require('../services/userService');
 
-function register(req, res) {
+async function postRegister(req, res) {
   try {
-    const { email, password } = req.body;
-    const user = registrarUsuario(email, password);
-    res.json({ message: 'Usuario registrado correctamente', data: user });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const user = await registrarUsuario(req.body); // {email, password}
+    res.status(201).json(user);
+  } catch (e) {
+    console.error('[postRegister]', e);
+    res.status(e.status || 400).json({ message: e.message || 'Error registrando usuario' });
   }
 }
 
-function login(req, res) {
+async function postLogin(req, res) {
   try {
-    const { email, password } = req.body;
-    const user = loginUsuario(email, password);
-    res.json({ message: `Bienvenido, ${user.email}` });
-  } catch (err) {
-    res.status(401).json({ message: err.message });
+    const user = await loginUsuario(req.body); // {email, password}
+    res.json(user);
+  } catch (e) {
+    console.error('[postLogin]', e);
+    res.status(e.status || 401).json({ message: e.message || 'Login inválido' });
   }
 }
 
-module.exports = { register, login };
+module.exports = { postRegister, postLogin };
+
