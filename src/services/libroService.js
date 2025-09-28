@@ -1,13 +1,18 @@
+// src/services/libroService.js
 const { leerLibros, escribirLibros } = require('../data/data');
 
 function agregarLibro(libro) {
   const libros = leerLibros();
 
+  // Evita IDs duplicados
   if (libros.find(l => Number(l.id) === Number(libro.id))) {
     throw new Error('El ID ya está registrado');
   }
 
-  if (libros.find(l => l.titulo.trim().toLowerCase() === libro.titulo.trim().toLowerCase())) {
+  // Evita títulos duplicados (normalizados)
+  if (libros.find(
+    l => (l.titulo || '').trim().toLowerCase() === (libro.titulo || '').trim().toLowerCase()
+  )) {
     throw new Error('El título ya está registrado');
   }
 
@@ -20,9 +25,20 @@ function listarLibros() {
   return leerLibros();
 }
 
+function eliminarLibro(id) {
+  const libros = leerLibros();
+  const idx = libros.findIndex(l => Number(l.id) === Number(id));
+  if (idx === -1) return false;     // no existe
+  libros.splice(idx, 1);            // elimina
+  escribirLibros(libros);
+  return true;                      // eliminado OK
+}
+
 function listarLibrosPorCategoria(categoria) {
   const libros = leerLibros();
-  return libros.filter(l => l.categoria && l.categoria.toLowerCase() === categoria.toLowerCase());
+  return libros.filter(
+    l => l.categoria && l.categoria.toLowerCase() === String(categoria).toLowerCase()
+  );
 }
 
 function listarCategorias() {
@@ -31,5 +47,12 @@ function listarCategorias() {
   return categorias;
 }
 
-module.exports = { agregarLibro, listarLibros, listarLibrosPorCategoria, listarCategorias };
+module.exports = {
+  agregarLibro,
+  listarLibros,
+  eliminarLibro,                // ← ¡exportado!
+  listarLibrosPorCategoria,
+  listarCategorias
+};
+
 
