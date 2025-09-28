@@ -10,5 +10,23 @@
     "titulo": "El dia",
     "autor": "Maria Juarez",
     "PrecioRenta": 1500
+  },
+  {
+    "id": 3,
+    "titulo": "Sombras del bosque",
+    "autor": "Lucía Garrido",
+    "PrecioRenta": 2800
+  },
+  {
+    "id": 4,
+    "titulo": "Caminos de sal",
+    "autor": "Rafael Núñez",
+    "PrecioRenta": 3200
+  },
+  {
+    "id": 5,
+    "titulo": "El último tren",
+    "autor": "Carla Méndez",
+    "PrecioRenta": 2500
   }
 ]
