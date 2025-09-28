@@ -1,27 +1,41 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataFilePath = path.join(__dirname, 'libro.json');
+const libroPath = path.join(__dirname, 'libro.json');
+const userPath = path.join(__dirname, 'users.json');
 
-function leerDatos() {
-  const raw = fs.readFileSync(dataFilePath, 'utf8');
-  return JSON.parse(raw);
+// -------- LIBROS --------
+function leerLibros() {
+  try {
+    if (!fs.existsSync(libroPath)) return [];
+    return JSON.parse(fs.readFileSync(libroPath, 'utf8'));
+  } catch {
+    return [];
+  }
 }
 
-function escribirDatos(data) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
-}
-function testPersistencia() {
-  console.log("Datos actuales:");
-  console.log(leerDatos());
-
-  const libros = leerDatos();
-  libros.push({ id: "X", titulo: "Nuevo libro", autor: "Autor", 
-    PrecioRenta: "Precio" });
-  escribirDatos(libros);
-
-  console.log("Después de añadir un libro:");
-  console.log(leerDatos());
+function escribirLibros(data) {
+  fs.writeFileSync(libroPath, JSON.stringify(data, null, 2));
 }
 
-testPersistencia();
+// -------- USUARIOS --------
+function leerUsuarios() {
+  try {
+    if (!fs.existsSync(userPath)) return [];
+    return JSON.parse(fs.readFileSync(userPath, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function escribirUsuarios(data) {
+  fs.writeFileSync(userPath, JSON.stringify(data, null, 2));
+}
+
+module.exports = {
+  leerLibros,
+  escribirLibros,
+  leerUsuarios,
+  escribirUsuarios
+};
+
