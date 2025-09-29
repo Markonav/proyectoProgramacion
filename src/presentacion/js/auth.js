@@ -25,7 +25,7 @@ function enviarDatos(ruta) {
   .then(result => {
     if (result.ok) {
       showMessage(result.data.message || "Operación exitosa", true);
-      // 👉 Redirigir a catalogo.html después de 1 segundo
+      
       setTimeout(() => {
         window.location.href = "catalogo.html";
       }, 1000);

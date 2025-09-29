@@ -1,10 +1,10 @@
-// src/server.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const userRoutes = require('./routes/userRoutes');     // /api/users/*
-const libroRoutes = require('./routes/libroRoutes');   // /api/libros/* (si ya existe)
+const userRoutes = require('./routes/userRoutes');     
+const libroRoutes = require('./routes/libroRoutes');   
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'presentacion')));
 
 // Rutas API
 app.use('/api/users', userRoutes);
-app.use('/api/libros', libroRoutes); // si no tienes libros, quita esta línea
+app.use('/api/libros', libroRoutes); 
 
 // 404 y manejo de errores
 app.use((req, res) => res.status(404).json({ message: 'Recurso no encontrado' }));

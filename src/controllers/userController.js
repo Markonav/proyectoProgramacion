@@ -1,9 +1,8 @@
-// src/controllers/userController.js
 const { registrarUsuario, loginUsuario } = require('../services/userService');
 
 async function postRegister(req, res) {
   try {
-    const user = await registrarUsuario(req.body); // {email, password}
+    const user = await registrarUsuario(req.body); 
     res.status(201).json(user);
   } catch (e) {
     console.error('[postRegister]', e);
@@ -13,7 +12,7 @@ async function postRegister(req, res) {
 
 async function postLogin(req, res) {
   try {
-    const user = await loginUsuario(req.body); // {email, password}
+    const user = await loginUsuario(req.body);
     res.json(user);
   } catch (e) {
     console.error('[postLogin]', e);

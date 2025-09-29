@@ -1,4 +1,4 @@
-/* BANNER */
+
 .banner{
   background: var(--c-secondary);
   padding:60px 20px;
@@ -15,7 +15,7 @@
   cursor:pointer;
 }
 
-/* CARRUSELES */
+
 .carousel{ 
   margin: 30px 20px;
   max-width: 1200px; 

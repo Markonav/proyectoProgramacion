@@ -1,4 +1,4 @@
-// src/presentacion/js/perfil.js
+
 const form = document.getElementById('perfilForm');
 const nombre   = document.getElementById('nombre');
 const apellido = document.getElementById('apellido');
@@ -26,7 +26,7 @@ function clearErr(input, errEl){
 
 function validarNombreLike(input, errEl){
   const v = input.value.trim();
-  input.value = v; // normaliza espacios
+  input.value = v; 
   if (v.length === 0) return setErr(input, errEl, 'Este campo es obligatorio');
   if (v.length > 25)  return setErr(input, errEl, 'Máximo 25 caracteres');
   if (!NOMBRE_RE.test(v)) return setErr(input, errEl, 'Usa solo letras');
@@ -38,19 +38,16 @@ function validarNickname(input, errEl){
   input.value = v;
   if (v.length === 0) return setErr(input, errEl, 'Este campo es obligatorio');
   if (v.length > 25)  return setErr(input, errEl, 'Máximo 25 caracteres');
-  // si quisieras restringirlo más (p. ej. letras, números y _):
-  // if (!/^[A-Za-z0-9_]{1,25}$/.test(v)) return setErr(input, errEl, 'Usa letras, números o _ (máx. 25)');
   return clearErr(input, errEl);
 }
 
-// Validación en tiempo real
 [['input','blur']].flat().forEach(evt => {
   nombre?.addEventListener(evt,   () => validarNombreLike(nombre, errNombre));
   apellido?.addEventListener(evt, () => validarNombreLike(apellido, errApellido));
   nickname?.addEventListener(evt, () => validarNickname(nickname, errNick));
 });
 
-// Al enviar el formulario
+
 form?.addEventListener('submit', (e)=>{
   const ok =
     validarNombreLike(nombre, errNombre) &&

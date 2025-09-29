@@ -4,7 +4,7 @@ const path = require('path');
 const libroPath = path.join(__dirname, 'libro.json');
 const userPath = path.join(__dirname, 'users.json');
 
-// -------- LIBROS --------
+//LIBROS
 function leerLibros() {
   try {
     if (!fs.existsSync(libroPath)) return [];
@@ -18,7 +18,7 @@ function escribirLibros(data) {
   fs.writeFileSync(libroPath, JSON.stringify(data, null, 2));
 }
 
-// -------- USUARIOS --------
+//USUARIOS
 function leerUsuarios() {
   try {
     if (!fs.existsSync(userPath)) return [];

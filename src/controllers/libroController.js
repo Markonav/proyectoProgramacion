@@ -2,32 +2,39 @@ const { agregarLibro, listarLibros, eliminarLibro } = require('../services/libro
 
 function addLibro(req, res) {
   try {
-    const { id, titulo, autor, PrecioRenta } = req.body;
+    const { titulo, autor, PrecioRenta } = req.body;
 
-    if (!id || !titulo || !autor || !PrecioRenta) {
+    if (!titulo || !autor || PrecioRenta === undefined) {
       return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+    let nuevoId = Date.now();
+    const existentes = listarLibros();
+    while (existentes.some(l => Number(l.id) === nuevoId)) {
+      nuevoId++; 
     }
 
     const nuevoLibro = {
-      id: Number(id),
-      titulo: titulo.trim(),
-      autor: autor.trim(),
+      id: nuevoId,
+      titulo: String(titulo).trim(),
+      autor:  String(autor).trim(),
       PrecioRenta: Number(PrecioRenta)
     };
 
-    const libro = agregarLibro(nuevoLibro);
-    res.json({ message: 'Libro agregado correctamente', data: libro });
+    const creado = agregarLibro(nuevoLibro);
+    return res.status(201).json({ message: 'Libro agregado', libro: creado });
+
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Error al agregar libro' });
   }
 }
 
 function getLibros(req, res) {
   try {
-    const libros = listarLibros();
-    res.json(libros);
-  } catch (err) {
-    res.status(500).json({ message: 'Error al leer libros' });
+    const data = listarLibros();
+    return res.json(data);
+  } catch {
+    return res.status(500).json({ message: 'Error al obtener libros' });
   }
 }
 

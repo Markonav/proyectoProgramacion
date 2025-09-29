@@ -1,18 +1,18 @@
-// slidebarCuenta.js
+
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Configurar navegación activa solo para el sidebar
+    
     setupSidebarNavigation();
 });
 
 function setupSidebarNavigation() {
-    // Obtener la página actual
+   
     const currentPage = getCurrentPage();
     
-    // Seleccionar solo los enlaces del sidebar
+   
     const sidebarLinks = document.querySelectorAll('.perfil__nav a');
     
-    // Remover clase active de todos los enlaces del sidebar
+    
     sidebarLinks.forEach(link => {
         link.classList.remove('active');
     });
@@ -27,11 +27,11 @@ function setupSidebarNavigation() {
 }
 
 function getCurrentPage() {
-    // Obtener el nombre del archivo actual
+    
     const path = window.location.pathname;
     const page = path.split('/').pop();
     
-    // Mapeo de páginas para casos especiales
+    
     const pageMap = {
         '': 'perfil.html',
         'index.html': 'perfil.html',

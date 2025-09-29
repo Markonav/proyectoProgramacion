@@ -29,7 +29,7 @@ async function cargarLibros(categoria = "") {
   });
 }
 
-// Cuando se hace clic en un botón de categoría
+
 document.querySelectorAll(".cat-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
@@ -38,5 +38,5 @@ document.querySelectorAll(".cat-btn").forEach(btn => {
   });
 });
 
-// Cargar todos los libros por defecto al entrar
+
 cargarLibros();

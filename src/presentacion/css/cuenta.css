@@ -1,6 +1,4 @@
-/* CONTENIDO CUENTA - CSS ESPECÍFICO */
 
-/* Configuración de cuenta */
 .config-section {
   margin-bottom: 30px;
 }
@@ -12,7 +10,7 @@
   padding-bottom: 8px;
 }
 
-/* Toggle switches */
+
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -65,14 +63,14 @@
   margin-bottom: 15px;
 }
 
-/* Estilos para la sección de eliminación de cuenta */
+
 .config-section p {
   margin-bottom: 20px;
   line-height: 1.5;
   color: #666;
 }
 
-/* Botón de eliminar cuenta con estilo diferente */
+
 .btn[style*="background-color: #c25454"] {
   background-color: #c25454 !important;
 }
@@ -81,17 +79,17 @@
   background-color: #a94444 !important;
 }
 
-/* Formulario de cambio de contraseña específico */
+
 .perfil__form .form-group input[type="password"] {
   letter-spacing: 1px;
 }
 
-/* Estilos para secciones de configuración */
+
 .config-section:last-child {
   margin-bottom: 0;
 }
 
-/* Responsive para página de cuenta */
+
 @media (max-width: 768px) {
   .toggle-label {
     flex-direction: column;

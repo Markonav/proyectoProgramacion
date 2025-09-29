@@ -1,4 +1,4 @@
-/* ====== CONTENIDO BASE ====== */
+/*CONTENIDO BASE*/
 .content{ 
   flex:1; 
   display:flex; 
@@ -81,7 +81,7 @@ input:focus{
   margin-top:12px; font-size:.95em; 
 }
 
-/* ====== TABLA/CONTENEDORES GENERALES ====== */
+/*TABLA*/
 .card, .tabla-container{
   background:#fff; 
   border:1px solid #e9e3d9; 

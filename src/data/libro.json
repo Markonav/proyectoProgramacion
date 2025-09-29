@@ -1,38 +1,20 @@
 [
   {
-    "id": 2,
-    "titulo": "El dia",
-    "autor": "Maria Juarez",
+    "id": 1759113889709,
+    "titulo": "Enanitos",
+    "autor": "Pedro",
+    "PrecioRenta": 5500
+  },
+  {
+    "id": 1759114200015,
+    "titulo": "Krisha",
+    "autor": "Maria",
     "PrecioRenta": 1500
   },
   {
-    "id": 3,
-    "titulo": "Sombras del bosque",
-    "autor": "Lucía Garrido",
-    "PrecioRenta": 2800
-  },
-  {
-    "id": 4,
-    "titulo": "Caminos de sal",
-    "autor": "Rafael Núñez",
-    "PrecioRenta": 3200
-  },
-  {
-    "id": 5,
-    "titulo": "El último tren",
-    "autor": "Carla Méndez",
-    "PrecioRenta": 2500
-  },
-  {
-    "id": 6,
+    "id": 1759117214798,
     "titulo": "Harry Potter",
-    "autor": "Bastian",
-    "PrecioRenta": 3500
-  },
-  {
-    "id": 1,
-    "titulo": "WOW",
-    "autor": "Bastian",
-    "PrecioRenta": 5500
+    "autor": "ASD",
+    "PrecioRenta": 1550
   }
 ]

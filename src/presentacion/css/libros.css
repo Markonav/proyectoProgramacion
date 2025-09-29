@@ -1,4 +1,4 @@
-/* Fondo general de sección de libros */
+
 .libros-section{ 
   flex:1; 
   display:flex; 
@@ -17,7 +17,7 @@ h2{
   text-align:center; 
 }
 
-/* Contenedor tabla / tarjetas */
+
 .tabla-container{ 
   background:#fff; 
   padding:25px; 
@@ -28,7 +28,7 @@ h2{
   border:1px solid #e9e3d9; 
 }
 
-/* Tabla */
+
 #tablaLibros{ 
   width:100%; 
   border-collapse:collapse; 
@@ -43,7 +43,7 @@ h2{
   color:#fff; 
 }
 
-/* Formulario */
+
 .card,.form-box{ 
   background:#fff; 
   padding:20px; 
@@ -64,7 +64,7 @@ input:focus{
   box-shadow:0 0 0 3px rgba(196,145,124,.15); 
 }
 
-/* Botones */
+
 button,.btn{ 
   background:var(--c-primary); 
   color:#fff; 
@@ -78,13 +78,13 @@ button:hover,.btn:hover{
   background:var(--c-dark); 
 }
 
-/* Mensajes */
+
 #mensaje{ 
   margin:14px 0 0; 
   font-weight:bold; 
 }
 
-/* Estados visuales (S5) */
+
 .state{ 
   margin:12px 0; 
   padding:12px 14px; 
@@ -105,6 +105,81 @@ button:hover,.btn:hover{
   border-color:#f0e3a0; 
   color:#6b5d00; 
 }
+
+.form-box{
+  background: #ffffff;
+  padding: 24px 28px;          
+  border: 1px solid #eee;
+  border-radius: 14px;        
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  max-width: 560px;
+  margin: 16px auto;        
+  box-sizing: border-box;
+}
+
+#libroForm{
+  display: grid;
+  gap: 14px;                  
+}
+
+.form-group{
+  display: grid;
+  gap: 6px;                  
+}
+
+.form-group label{
+  font-weight: 600;
+  color: #334155;            
+}
+
+.form-group input{
+  width: 100%;
+  padding: 10px 12px;        
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #f8fafc;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+
+.form-group input:focus{
+  border-color: #93c5fd;      
+  box-shadow: 0 0 0 4px rgba(59,130,246,.15);
+  background: #fff;
+}
+
+.btns{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.btn{
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #7dc6e6;        
+  color: #073b4c;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .05s ease, filter .15s ease;
+}
+
+.btn:hover{ filter: brightness(1.05); transform: translateY(-1px); }
+.btn:disabled{ opacity: .65; cursor: not-allowed; }
+
+#mensaje{
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+@media (max-width: 640px){
+  .form-box{ padding: 18px 16px; border-radius: 12px; }
+  .btn{ width: 100%; }
+}
+
 
 
 

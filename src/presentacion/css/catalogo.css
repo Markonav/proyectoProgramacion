@@ -1,17 +1,14 @@
-/* ===========================
-   ESTILOS DEL CATÁLOGO
-   =========================== */
 
-/* Fondo y tipografía base */
+
+
+
 .catalog {
   padding: 40px;
   background: var(--c-bg);
   color: var(--c-dark);
 }
 
-/* ===========================
-   TÍTULO PRINCIPAL
-   =========================== */
+
 .titlebar {
   position: relative;
   margin-bottom: 24px;
@@ -26,18 +23,14 @@
   background: #e6ecef;
 }
 
-/* ===========================
-   GRILLA DE LIBROS
-   =========================== */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 26px;
 }
 
-/* ===========================
-   TARJETAS DE LIBROS
-   =========================== */
+
 .card {
   background: #fff;
   border: 1px solid #e9e3d9;
@@ -54,7 +47,7 @@
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* Portada */
+
 .thumb {
   height: 190px;
   background: var(--c-secondary);
@@ -80,7 +73,7 @@
   transform: rotate(-45deg);
 }
 
-/* Información del libro */
+
 .meta {
   background: #fff;
   padding: 14px 14px 16px;
@@ -107,9 +100,7 @@
   font-size: 14px;
 }
 
-/* ===========================
-   BOTONES (CTA)
-   =========================== */
+
 .cta-row {
   display: flex;
   align-items: center;
@@ -152,9 +143,7 @@
   color: #e53935;
 }
 
-/* ===========================
-   RESPONSIVE
-   =========================== */
+
 @media (max-width: 1100px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);

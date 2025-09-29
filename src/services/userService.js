@@ -1,7 +1,7 @@
-// src/services/userService.js
+
 let bcrypt;
 try { bcrypt = require('bcrypt'); }
-catch { bcrypt = require('bcryptjs'); }  // fallback en Windows/Node sin toolchain
+catch { bcrypt = require('bcryptjs'); } 
 
 const { leerUsuarios, escribirUsuarios } = require('../data/usersStore');
 
@@ -44,7 +44,7 @@ async function registrarUsuario({ email, password }) {
   usuarios.push(nuevo);
   escribirUsuarios(usuarios);
 
-  // Nunca expongas el hash
+ 
   const { passwordHash: _discard, ...safe } = nuevo;
   return safe;
 }
@@ -61,7 +61,7 @@ async function loginUsuario({ email, password }) {
     throw err;
   }
 
-  // Migración automática si existiera un campo legacy "password" sin hash
+  
   if (!user.passwordHash && user.password && !String(user.password).startsWith('$2')) {
     user.passwordHash = await bcrypt.hash(String(user.password), SALT_ROUNDS);
     delete user.password;

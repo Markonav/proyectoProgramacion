@@ -21,7 +21,7 @@
   },
   {
     "email": "bstn@gmail.com",
-    "password": "asdfg12345"
+    "passwordHash": "$2b$10$vDpmYEdnKKTYifScMDyvPuOBTPTKLj2k1jxF5DyWK2O4w4yoYu4Ta"
   },
   {
     "email": "MSdjfohfu@gmail.com",
@@ -39,5 +39,15 @@
     "email": "tomas123@gmail.com",
     "passwordHash": "$2b$10$P4YHrftL5Vy/L8nWQ4eVNOE8svIe3hP6xD5bLyH7sOQvFoQ9JcWPO",
     "createdAt": "2025-09-28T22:21:22.947Z"
+  },
+  {
+    "email": "maria@gmail.com",
+    "passwordHash": "$2b$10$tdycO2EWHTmdYwobbzvxoe8/zbQBhZgq4lEDrgXet65uXEH00QqHS",
+    "createdAt": "2025-09-29T04:04:11.183Z"
+  },
+  {
+    "email": "pedrito@gmail.com",
+    "passwordHash": "$2b$10$yrpN0DL7wG2BxDArP/tuwOO7OXPb9eO/0FAZ8aaGi5UtnPVcCRI7G",
+    "createdAt": "2025-09-29T04:15:34.504Z"
   }
 ]
