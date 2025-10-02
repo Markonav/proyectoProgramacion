@@ -1,0 +1,56 @@
+/* === Sidebar Perfil (Vue Router) === */
+.perfil__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 260px;
+  max-width: 260px;
+  width: 260px;
+  box-sizing: border-box;
+}
+
+/* Menú de navegación */
+.perfil__nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.perfil__nav a,
+.perfil__nav .router-link-active {
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--c-dark);
+  text-decoration: none;
+  transition: background 0.2s ease, font-weight 0.2s ease;
+}
+
+.perfil__nav a:hover {
+  background: #fff1ea;
+  font-weight: 700;
+}
+
+/* clase activa de Vue Router */
+.perfil__nav .active {
+  background: #fff1ea;
+  font-weight: 700;
+}
+
+/* Botones del sidebar */
+.sidebar-action {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-action a,
+.sidebar-action button {
+  text-decoration: none;
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+}
+
+@media (max-width: 960px) {
+  .perfil__grid { grid-template-columns: 1fr; }
+  .perfil { padding: 24px; }
+}
