@@ -27,4 +27,4 @@ function cerrarSesion() {
 }
 </script>
 
-<style src="@/assets/styles/sideBarPerfil.css"></style>
+<style src="@/assets/styles/sideBarCuenta.css"></style>
