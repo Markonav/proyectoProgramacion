@@ -117,9 +117,45 @@ const seguridad = ref({
     confirmar: ''
 })
 
-function cambiarPassword() {
-    // Aquí iría la lógica para cambiar la contraseña
-    alert('Contraseña cambiada (demo)');
+function validarNueva(n) {
+    const s = String(n ?? '');
+    return s.length >= 6 && /[A-Za-z]/.test(s) && /\d/.test(s);
+}
+
+async function cambiarPassword() {
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    if (!user.email) return alert('No hay sesión activa.');
+
+    if (!seguridad.value.actual || !seguridad.value.nueva || !seguridad.value.confirmar) {
+        return alert('Completa todos los campos');
+    }
+    if (seguridad.value.nueva !== seguridad.value.confirmar) {
+        return alert('La nueva contraseña y la confirmación no coinciden');
+    }
+    if (!validarNueva(seguridad.value.nueva)) {
+        return alert('La nueva contraseña debe tener al menos 6 caracteres, incluir letras y números');
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:3000/api/users/password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+            body: JSON.stringify({ email: user.email, currentPassword: seguridad.value.actual, newPassword: seguridad.value.nueva })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(data.message || 'Contraseña cambiada correctamente');
+            // Limpiar campos
+            seguridad.value.actual = '';
+            seguridad.value.nueva = '';
+            seguridad.value.confirmar = '';
+        } else {
+            alert(data.message || 'Error cambiando la contraseña');
+        }
+    } catch (e) {
+        alert('Error de conexión con el servidor');
+    }
 }
 
 function eliminarCuenta() {

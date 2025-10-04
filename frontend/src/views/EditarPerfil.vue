@@ -17,7 +17,7 @@
         <button class="link-danger" @click="quitarAvatar">Quitar</button>
       </div>
     </div>
-  </div>
+  </div>  
   <!-- Datos del usuario -->
   <div class="perfil__panel card">
     <h2 class="panel__title">Datos del Usuario</h2>
@@ -37,7 +37,7 @@
         <input v-model="perfil.nickname" type="text" required />
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn">Confirmar</button>
+        <button type="submit" class="btn">{{ buttonLabel }}</button>
       </div>
     </form>
   </div>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted, computed } from "vue"
 
 // Estado del perfil
 const perfil = ref({
@@ -55,6 +55,22 @@ const perfil = ref({
 })
 
 const avatarUrl = ref(null)
+const hasSavedProfile = ref(false)
+
+onMounted(() => {
+  try {
+    const stored = JSON.parse(localStorage.getItem('user')) || {}
+    if (stored.nombre) perfil.value.nombre = stored.nombre
+    if (stored.apellido) perfil.value.apellido = stored.apellido
+    if (stored.nickname) perfil.value.nickname = stored.nickname
+    if (stored.avatarUrl) avatarUrl.value = stored.avatarUrl
+    hasSavedProfile.value = Boolean(stored.nombre || stored.apellido || stored.nickname)
+  } catch (e) {
+    // ignore
+  }
+})
+
+const buttonLabel = computed(() => hasSavedProfile.value ? 'Editar Perfil' : 'Confirmar')
 
 // Métodos
 function cargarAvatar(e) {
@@ -68,8 +84,42 @@ function quitarAvatar() {
   avatarUrl.value = null
 }
 
-function guardarPerfil() {
-  console.log("Perfil guardado:", perfil.value)
+async function guardarPerfil() {
+  // Obtener usuario logueado
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user || !user.email) {
+    alert('No hay sesión activa.');
+    return;
+  }
+  // Preparar datos
+  const datos = {
+    email: user.email,
+    nombre: perfil.value.nombre,
+    apellido: perfil.value.apellido,
+    nickname: perfil.value.nickname
+  };
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:3000/api/users/update', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+      },
+      body: JSON.stringify(datos)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert('Perfil actualizado correctamente');
+      // Actualizar user en localStorage
+      localStorage.setItem('user', JSON.stringify({ ...user, ...datos }));
+      hasSavedProfile.value = true
+    } else {
+      alert(data.message || 'Error al actualizar perfil');
+    }
+  } catch (e) {
+    alert('Error de conexión con el servidor');
+  }
 }
 </script>
 

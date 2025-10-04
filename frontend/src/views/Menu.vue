@@ -7,7 +7,7 @@
         <div class="banner-info">
           <h1>Novedades del Mes</h1>
           <p>Descubre los últimos lanzamientos y empieza a leer hoy mismo.</p>
-          <button class="btn">Ver más</button>
+          <button class="btn" @click="verCatalogo">Ver más</button>
         </div>
       </section>
 
@@ -108,6 +108,11 @@ export default {
         'Fantasía', 'Romance', 'Aventura', 'Ciencia Ficción',
         'Misterio', 'Horror', 'Accion', 'Suspenso', 'Científico'
       ]
+    }
+  },
+  methods: {
+    verCatalogo() {
+      this.$router.push('/catalogo');
     }
   }
 }
