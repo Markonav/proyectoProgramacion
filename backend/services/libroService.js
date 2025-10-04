@@ -34,10 +34,25 @@ function eliminarLibro(id) {
   return true;                      
 }
 
+function listarLibrosPorCategoria(categoria) {
+  const libros = leerLibros();
+  return libros.filter(
+    l => l.categoria && l.categoria.toLowerCase() === String(categoria).toLowerCase()
+  );
+}
+
+function listarCategorias() {
+  const libros = leerLibros();
+  const categorias = [...new Set(libros.map(l => l.categoria))];
+  return categorias;
+}
+
 module.exports = {
   agregarLibro,
   listarLibros,
   eliminarLibro,               
+  listarLibrosPorCategoria,
+  listarCategorias
 };
 
 

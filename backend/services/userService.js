@@ -79,4 +79,60 @@ async function loginUsuario({ email, password }) {
   return safe;
 }
 
-module.exports = { registrarUsuario, loginUsuario };
+// Actualizar datos de usuario (nombre, apellido, nickname)
+async function actualizarUsuario({ email, nombre, apellido, nickname }) {
+  if (!email) {
+    const err = new Error('Email requerido');
+    err.status = 400;
+    throw err;
+  }
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  const idx = usuarios.findIndex(u => normEmail(u.email) === e);
+  if (idx === -1) {
+    const err = new Error('Usuario no encontrado');
+    err.status = 404;
+    throw err;
+  }
+  // Actualizar campos si se proveen
+  if (typeof nombre === 'string') usuarios[idx].nombre = nombre;
+  if (typeof apellido === 'string') usuarios[idx].apellido = apellido;
+  if (typeof nickname === 'string') usuarios[idx].nickname = nickname;
+  escribirUsuarios(usuarios);
+  const { passwordHash, password, ...safe } = usuarios[idx];
+  return safe;
+}
+
+// Cambiar contraseña: verifica contraseña actual y actualiza por la nueva
+async function cambiarContrasena({ email, currentPassword, newPassword }) {
+  if (!email) {
+    const err = new Error('Email requerido'); err.status = 400; throw err;
+  }
+  if (!currentPassword) {
+    const err = new Error('Contraseña actual requerida'); err.status = 400; throw err;
+  }
+  validarCredenciales(email, newPassword);
+
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  const idx = usuarios.findIndex(u => normEmail(u.email) === e);
+  if (idx === -1) {
+    const err = new Error('Usuario no encontrado'); err.status = 404; throw err;
+  }
+
+  const user = usuarios[idx];
+  const ok = await bcrypt.compare(String(currentPassword), user.passwordHash || '');
+  if (!ok) {
+    const err = new Error('Contraseña actual incorrecta'); err.status = 401; throw err;
+  }
+
+  const newHash = await bcrypt.hash(String(newPassword), SALT_ROUNDS);
+  usuarios[idx].passwordHash = newHash;
+  escribirUsuarios(usuarios);
+
+  const { passwordHash, password, ...safe } = usuarios[idx];
+  return safe;
+}
+
+module.exports = { registrarUsuario, loginUsuario, actualizarUsuario, cambiarContrasena };
+
