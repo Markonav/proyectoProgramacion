@@ -7,6 +7,8 @@
   flex-direction: column;
   transition: transform 0.3s, box-shadow 0.3s;
   box-shadow: 0 6px 16px rgba(196,145,124,0.12);
+  max-width: 220px; /* límite para tarjetas en catálogo - más estrechas */
+  width: 100%;
 }
 
 .libro-card:hover {
@@ -15,12 +17,21 @@
 }
 
 .libro-img {
-  height: 190px;
+  height: 240px;
   background: #f2f4f6;
   display: grid;
   place-items: center;
   font-size: 48px;
   border-bottom: 1px solid #e6ecef;
+}
+
+.libro-img img.cover-img {
+  width: 100%;
+  height: 100%;
+    object-fit: cover;
+    /* Preferimos mostrar la parte superior de la imagen; si hay recorte, recortar por la parte baja */
+    object-position: 50% 15%;
+  display: block;
 }
 
 .libro-info {
@@ -30,6 +41,16 @@
   flex-direction: column;
   gap: 6px;
 }
+
+  /* Ajustes responsive: en pantallas pequeñas reducimos la altura para que las tarjetas no sean demasiado altas */
+  @media (max-width: 600px) {
+    .libro-img {
+      height: 180px;
+    }
+    .libro-img img.cover-img {
+      object-position: 50% 10%;
+    }
+  }
 
 .libro-titulo {
   color: var(--c-primary);
