@@ -14,7 +14,7 @@
       <div class="libro-autor">{{ book.author }}</div>
       <div class="libro-precio">{{ formattedPrice }}</div>
 
-      <div v-if="modo !== 'carrusel'" class="libro-acciones">
+      <div class="libro-acciones">
         <button class="btn-small" @click="$emit('add-to-cart', book)">Agregar</button>
         <button
           class="icon-btn"
