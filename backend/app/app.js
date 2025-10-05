@@ -19,6 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 // Archivos estáticos - MEJOR ORGANIZADOS
 app.use(express.static(path.join(__dirname, '../presentacion')));
 
+// Servir imágenes subidas (portadas)
+app.use('/uploads', express.static(path.join(__dirname, '../data/images')));
+
 // Rutas API
 app.use('/api/users', userRoutes);
 app.use('/api/libros', libroRoutes);
