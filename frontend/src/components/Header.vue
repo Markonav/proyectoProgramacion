@@ -4,10 +4,10 @@
     <RouterLink to="/menu">  <img src="" alt="Logo" /> </RouterLink>
     </div>
     <nav class="menu">
-      <a href="#">En Tendencia</a>
-      <a href="#">Más Leídos</a>
+      <RouterLink to="/tendencias">En Tendencia</RouterLink>
+      <RouterLink to="/másLeídos">Más Leídos</RouterLink>
       <RouterLink to="/catalogo">Todos los Libros</RouterLink>
-      <a href="#">Categorías</a>
+      <RouterLink to="/categorias">Categorías</RouterLink>
     </nav>
     <div class="user-tools">
       <input type="text" placeholder="Buscar" />
