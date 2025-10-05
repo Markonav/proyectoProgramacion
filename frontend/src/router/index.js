@@ -9,6 +9,8 @@ import Configuracion from '@/views/Configuracion.vue'
 import Favoritos from '@/views/Favoritos.vue'
 import AgregarLibro from '@/views/AgregarLibro.vue'
 import Categorias from '@/views/Categorias.vue'
+import Tendencia from '@/views/Tendencia.vue'
+import MásLeídos from '@/views/MásLeídos.vue'
 
 
 const router = createRouter({
@@ -17,9 +19,11 @@ const router = createRouter({
     { path: '/', redirect: '/menu' },
     { path: '/menu', component: Menu },
     { path: '/catalogo', component: Catalogo },
+    { path: '/tendencias', component: Tendencia },
     { path: '/categorias', component: Categorias },
     { path: '/login', component: Login },
     { path: '/agregarLibro', component: AgregarLibro },
+    { path: '/másLeídos', component: MásLeídos },
     {
       path: '/cuenta',
       component: Cuenta,
