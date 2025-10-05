@@ -16,10 +16,18 @@ html, body {
   background:var(--c-bg); 
   color:var(--c-dark); 
 }
-.page { 
-  width:100%; 
-  min-height:100vh; 
-  margin:0; display:flex; 
-  flex-direction:column; 
-  justify-content:space-between; 
+.page {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer, .footer {
+  flex-shrink: 0;
 }
