@@ -32,24 +32,84 @@ export default {
     }
   },
   methods: {
-    cargarFavoritos() {
-      // Puedes adaptar esto si tus favoritos vienen del backend
-      const favs = JSON.parse(localStorage.getItem('favs') || '{}');
-      // Aquí deberías tener una lista de libros completa, pero para demo, solo ids y mock
-      // Si tienes todos los libros en localStorage o backend, filtra por favs true
-      const books = JSON.parse(localStorage.getItem('books') || '[]');
-      this.favoritos = books.filter(b => favs[b.id]);
+    async cargarFavoritos() {
+      // Traer todos los libros del backend y filtrar por favorites guardados en localStorage
+      try {
+        const res = await fetch('http://localhost:3000/api/libros');
+        if (!res.ok) throw new Error('No response');
+        const data = await res.json();
+        const backendBase = 'http://localhost:3000';
+        const books = data.map((b, idx) => ({
+          id: b.id ?? idx,
+          title: b.titulo ?? 'Sin título',
+          author: b.autor ?? 'Autor desconocido',
+          price: b.PrecioRenta ?? 1990,
+          image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
+          categoria: b.categoria || ''
+        }));
+        const favs = JSON.parse(localStorage.getItem('favs') || '{}');
+        this.favoritos = books.filter(b => favs[b.id]);
+      } catch (e) {
+        // fallback: intentar cargar desde localStorage
+        const favs = JSON.parse(localStorage.getItem('favs') || '{}');
+        const books = JSON.parse(localStorage.getItem('books') || '[]');
+        this.favoritos = books.filter(b => favs[b.id]);
+      }
     },
-    quitarDeFavoritos(book) {
+    async quitarDeFavoritos(book) {
+      // Solo usuarios logueados pueden quitar favoritos
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (!user || !user.email) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Inicia sesión para gestionar favoritos', type: 'info', duration: 2800 } }));
+        this.$router.push('/login');
+        return;
+      }
       // Quitar de favoritos
       const favs = JSON.parse(localStorage.getItem('favs') || '{}');
       favs[book.id] = false;
       localStorage.setItem('favs', JSON.stringify(favs));
+      // Persistir en backend
+      try {
+        const token = user.token || null;
+        await fetch('http://localhost:3000/api/users/favs', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ email: user.email, favs })
+        });
+      } catch (e) {
+        // ignorar, ya actualizamos localmente
+      }
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Eliminado de favoritos', type: 'success', duration: 2000 } }));
       this.cargarFavoritos();
     }
   },
   mounted() {
-    this.cargarFavoritos();
+    // Si hay un usuario logueado, intentar sincronizar favs desde servidor
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const loadServerFavs = async () => {
+      if (!user || !user.email) return;
+      try {
+        const token = user.token || null;
+        const res = await fetch(`http://localhost:3000/api/users/favs?email=${encodeURIComponent(user.email)}`, {
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          }
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const serverFavs = json.favs || {};
+        localStorage.setItem('favs', JSON.stringify(serverFavs));
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    loadServerFavs().then(() => this.cargarFavoritos());
+    // Escuchar cambios de favoritos desde otras vistas
+    window.addEventListener('favs:changed', this.cargarFavoritos);
   }
 }
 </script>

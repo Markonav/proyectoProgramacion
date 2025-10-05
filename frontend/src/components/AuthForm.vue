@@ -54,8 +54,23 @@ export default {
         if (res.ok) {
           // Si es login y hay token, guardar en localStorage y redirigir a catálogo
           if (ruta.includes('login') && data.token) {
+            // Si ya había sesión de otro usuario, reiniciar carrito
+            const prevUser = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!prevUser || prevUser.email !== data.user.email) {
+              localStorage.removeItem('cart')
+            }
             localStorage.setItem('token', data.token)
-            localStorage.setItem('user', JSON.stringify(data.user))
+            // Ensure avatarUrl stored is absolute (points to backend) so images load from /uploads
+            try {
+              const backendBase = 'http://localhost:3000';
+              const u = { ...(data.user || {}) };
+              if (u.avatarUrl && !String(u.avatarUrl).startsWith('http')) {
+                u.avatarUrl = `${backendBase}${u.avatarUrl}`;
+              }
+              localStorage.setItem('user', JSON.stringify(u));
+            } catch (e) {
+              localStorage.setItem('user', JSON.stringify(data.user))
+            }
             this.message = data.message || "Inicio de sesión exitoso"
             this.ok = true
             setTimeout(() => {

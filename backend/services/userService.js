@@ -14,6 +14,10 @@ const validPass = (p) => {
   return s.length >= 6 && /[A-Za-z]/.test(s) && /\d/.test(s);
 };
 
+// Validaciones para nombre/apellido/nickname
+const validName = (n) => /^[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,40}$/.test(String(n || ''));
+const validNick = (n) => /^[A-Za-z0-9_]{3,20}$/.test(String(n || ''));
+
 function validarCredenciales(email, password) {
   if (!validEmail(email)) {
     const err = new Error('Correo inválido');
@@ -79,6 +83,28 @@ async function loginUsuario({ email, password }) {
   return safe;
 }
 
+// Obtener favoritos de un usuario
+async function obtenerFavoritos(email) {
+  if (!email) { const err = new Error('Email requerido'); err.status = 400; throw err; }
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  const user = usuarios.find(u => normEmail(u.email) === e);
+  if (!user) { const err = new Error('Usuario no encontrado'); err.status = 404; throw err; }
+  return user.favs || {};
+}
+
+// Actualizar favoritos de un usuario (favs: object)
+async function actualizarFavoritos(email, favs) {
+  if (!email) { const err = new Error('Email requerido'); err.status = 400; throw err; }
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  const idx = usuarios.findIndex(u => normEmail(u.email) === e);
+  if (idx === -1) { const err = new Error('Usuario no encontrado'); err.status = 404; throw err; }
+  usuarios[idx].favs = Object.assign({}, usuarios[idx].favs || {}, favs);
+  escribirUsuarios(usuarios);
+  return usuarios[idx].favs || {};
+}
+
 // Actualizar datos de usuario (nombre, apellido, nickname)
 async function actualizarUsuario({ email, nombre, apellido, nickname }) {
   if (!email) {
@@ -94,10 +120,32 @@ async function actualizarUsuario({ email, nombre, apellido, nickname }) {
     err.status = 404;
     throw err;
   }
-  // Actualizar campos si se proveen
-  if (typeof nombre === 'string') usuarios[idx].nombre = nombre;
-  if (typeof apellido === 'string') usuarios[idx].apellido = apellido;
-  if (typeof nickname === 'string') usuarios[idx].nickname = nickname;
+  // Validar y actualizar campos si se proveen
+  if (typeof nombre === 'string') {
+    if (!validName(nombre)) {
+      const err = new Error('Nombre inválido. Usa letras y espacios (2-40 chars).'); err.status = 400; throw err;
+    }
+    usuarios[idx].nombre = nombre;
+  }
+  if (typeof apellido === 'string') {
+    if (!validName(apellido)) {
+      const err = new Error('Apellido inválido. Usa letras y espacios (2-40 chars).'); err.status = 400; throw err;
+    }
+    usuarios[idx].apellido = apellido;
+  }
+  if (typeof nickname === 'string') {
+    if (!validNick(nickname)) {
+      const err = new Error('Nickname inválido. Solo letras, números y _ (3-20 caracteres).'); err.status = 400; throw err;
+    }
+    usuarios[idx].nickname = nickname;
+  }
+  // avatarUrl: si viene string lo setea; si viene removeAvatar=true lo borra
+  if (typeof arguments[0].avatarUrl === 'string') {
+    usuarios[idx].avatarUrl = arguments[0].avatarUrl;
+  }
+  if (arguments[0].removeAvatar === 'true' || arguments[0].removeAvatar === true) {
+    delete usuarios[idx].avatarUrl;
+  }
   escribirUsuarios(usuarios);
   const { passwordHash, password, ...safe } = usuarios[idx];
   return safe;
@@ -134,5 +182,5 @@ async function cambiarContrasena({ email, currentPassword, newPassword }) {
   return safe;
 }
 
-module.exports = { registrarUsuario, loginUsuario, actualizarUsuario, cambiarContrasena };
+module.exports = { registrarUsuario, loginUsuario, actualizarUsuario, cambiarContrasena, obtenerFavoritos, actualizarFavoritos };
 
