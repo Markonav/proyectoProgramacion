@@ -47,12 +47,30 @@ function listarCategorias() {
   return categorias;
 }
 
+function editarLibro(id, cambios) {
+  const libros = leerLibros();
+  const idx = libros.findIndex(l => Number(l.id) === Number(id));
+  if (idx === -1) return null;
+
+  // Solo actualizar campos permitidos
+  const permitido = ['titulo', 'autor', 'categoria', 'PrecioRenta', 'cover'];
+  Object.keys(cambios).forEach(k => {
+    if (permitido.includes(k)) {
+      libros[idx][k] = cambios[k];
+    }
+  });
+
+  escribirLibros(libros);
+  return libros[idx];
+}
+
 module.exports = {
   agregarLibro,
   listarLibros,
   eliminarLibro,               
   listarLibrosPorCategoria,
   listarCategorias
+  , editarLibro
 };
 
 
