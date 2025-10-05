@@ -24,6 +24,21 @@
   gap: 26px;
 }
 
+.sin_libros {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.2em;
+  margin-top: 50px;
+  margin: -200px;
+  transform: scale(0.5);
+}
+
+.sin_libros img:hover {
+  transform: scale(1.05); 
+}
+
+
 @media (max-width: 1100px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
