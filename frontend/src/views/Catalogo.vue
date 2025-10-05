@@ -55,12 +55,15 @@ export default {
         if (!res.ok) throw new Error("No hay respuesta");
         const data = await res.json();
         // Aseguramos estructura mínima
+        const backendBase = 'http://localhost:3000';
         this.books = data.map((b, idx) => ({
           id: b.id ?? idx,
           title: b.titulo ?? "Sin título",
           author: b.autor ?? "Autor desconocido",
           price: b.PrecioRenta ?? 1990,
-          image: b.image ?? null,
+          // el backend guarda la ruta en `cover` (ej: /uploads/xxx.png)
+          // convertimos rutas relativas como '/uploads/xxx' a URL absoluta apuntando al backend
+          image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
           favorite: !!b.favorite
         }));
       } catch (err) {
