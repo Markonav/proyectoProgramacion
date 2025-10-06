@@ -5,7 +5,7 @@
                 <section class="titlebar">
                     <h1>Tendencias</h1>
                     <div class="titlebar__rule"></div>
-                </section>
+                </section>  
 
                 <LoadingSpinner v-if="loading">Cargando libros...</LoadingSpinner>
 
@@ -20,6 +20,7 @@
                     :book="book"
                     @add-to-cart="addToCart"
                     @toggle-favorite="toggleFavorite"
+                    @view-details="goToBookDetail"
                     />
                 </section>
             </main>
@@ -52,13 +53,14 @@
                     if (!res.ok) throw new Error("No hay respuesta");
                     const data = await res.json();
                     // Aseguramos estructura mínima
+                    const backendBase = 'http://localhost:3000';
                     this.libros = data.map((b, idx) => ({
                         id: b.id ?? idx,
                         title: b.titulo ?? "Sin título",
                         author: b.autor ?? "Autor desconocido",
                         categoria: b.categoria ?? "Sin categoría",
                         price: b.PrecioRenta ?? 1990,
-                        image: b.image ?? null,
+                        image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
                         favorite: !!b.favorite
                         }));
                     } catch (err) {
@@ -66,6 +68,9 @@
                     } finally {
                         this.loading = false;
                     }
+                },
+                goToBookDetail(book) {
+                this.$router.push({ name: 'LibroDetalle', params: { id: book.id } });
                 }
             },
          mounted() {
