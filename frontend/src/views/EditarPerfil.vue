@@ -1,6 +1,6 @@
 <template>
 <section class="perfil__content">
-  <h1 class="perfil__title">Perfil</h1>
+  <h1 class="perfil__title">{{ perfil.nickname }}</h1>
   <!-- Foto de perfil -->
   <div class="perfil__panel card">
     <h2 class="panel__title">Foto de Perfil</h2>
