@@ -62,6 +62,11 @@
             <input v-model.number="nuevoLibro.PrecioRenta" type="number" id="precio" placeholder="Precio Renta" required />
           </div>
           <div class="form-group">
+            <label for="sinopsis">Sinopsis (opcional)</label>
+            <textarea v-model="nuevoLibro.sinopsis" id="sinopsis" placeholder="Sinopsis">
+            </textarea>
+          </div>
+          <div class="form-group">
             <label for="cover">Portada (opcional)</label>
             <input ref="coverInput" @change="onFileChange" type="file" id="cover" accept="image/*" />
           </div>
@@ -95,6 +100,7 @@ export default {
         titulo: '',
         autor: '',
         categoria: '',
+        sinopsis: '',
         PrecioRenta: ''
       },
       coverFile: null,
@@ -145,6 +151,7 @@ export default {
             form.append('titulo', this.nuevoLibro.titulo);
             form.append('autor', this.nuevoLibro.autor);
             form.append('categoria', this.nuevoLibro.categoria);
+            form.append('sinopsis', this.nuevoLibro.sinopsis);
             form.append('PrecioRenta', this.nuevoLibro.PrecioRenta);
 
             res = await fetch(`http://localhost:3000/api/libros/${this.editingId}`, {
@@ -172,6 +179,7 @@ export default {
             form.append('titulo', this.nuevoLibro.titulo);
             form.append('autor', this.nuevoLibro.autor);
             form.append('categoria', this.nuevoLibro.categoria);
+            form.append('sinopsis', this.nuevoLibro.sinopsis);
             form.append('PrecioRenta', this.nuevoLibro.PrecioRenta);
 
             res = await fetch('http://localhost:3000/api/libros', {
@@ -190,7 +198,7 @@ export default {
           this.mensajeTipo = 'success';
         }
 
-        this.nuevoLibro = { titulo: '', autor: '', categoria: '', PrecioRenta: '' };
+        this.nuevoLibro = { titulo: '', autor: '', categoria: '', sinopsis: '', PrecioRenta: '' };
         this.coverFile = null;
         // limpiar input file
         if (this.$refs.coverInput) this.$refs.coverInput.value = null;
@@ -211,6 +219,7 @@ export default {
         titulo: libro.titulo || '',
         autor: libro.autor || '',
         categoria: libro.categoria || '',
+        sinopsis: libro.sinopsis || '',
         PrecioRenta: libro.PrecioRenta || ''
       };
       this.coverFile = null; // dejar que el usuario suba uno nuevo si desea
@@ -221,7 +230,7 @@ export default {
       this.mostrarForm = false;
       this.modoEdicion = false;
       this.editingId = null;
-      this.nuevoLibro = { titulo: '', autor: '', categoria: '', PrecioRenta: '' };
+      this.nuevoLibro = { titulo: '', autor: '', categoria: '', sinopsis: '', PrecioRenta: '' };
       this.coverFile = null;
       if (this.$refs.coverInput) this.$refs.coverInput.value = null;
     }
