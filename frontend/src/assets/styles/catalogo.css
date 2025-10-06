@@ -20,8 +20,10 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 26px;
+  /* columnas responsivas: tarjetas más estrechas, se llenan según ancho disponible */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px;
+  justify-items: center; /* centrar las tarjetas dentro de cada celda */
 }
 
 .sin_libros {
@@ -46,17 +48,18 @@
 }
 @media (max-width: 900px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .titlebar {
-    text-align: center;
-  }
-}
-@media (max-width: 560px) {
-  .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
   .catalog {
     padding: 24px;
+  }
+}
+
+/* En pantallas anchas limitamos a máximo 5 tarjetas por fila y centramos la grid */
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    max-width: 1180px; /* 5 * 220px card max-width + gaps aproximados */
+    margin: 0 auto;
   }
 }

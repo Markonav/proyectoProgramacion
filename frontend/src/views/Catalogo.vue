@@ -21,6 +21,7 @@
           :book="book"
           @add-to-cart="addToCart"
           @toggle-favorite="toggleFavorite"
+          @view-details="goToBookDetail"
         />
       </section>
     </main>
@@ -65,13 +66,16 @@ export default {
         if (!res.ok) throw new Error("No hay respuesta");
         const data = await res.json();
         // Aseguramos estructura mínima
+        const backendBase = 'http://localhost:3000';
         this.libros = data.map((b, idx) => ({
           id: b.id ?? idx,
           title: b.titulo ?? "Sin título",
           author: b.autor ?? "Autor desconocido",
           categoria: b.categoria ?? "Sin categoría",
           price: b.PrecioRenta ?? 1990,
-          image: b.image ?? null,
+          // el backend guarda la ruta en `cover` (ej: /uploads/xxx.png)
+          // convertimos rutas relativas como '/uploads/xxx' a URL absoluta apuntando al backend
+          image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
           favorite: !!b.favorite
         }));
       } catch (err) {
@@ -79,6 +83,15 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    addToCart(book) {
+      // aquí puedes integrar tu lógica de carrito (localStorage, state, o llamar al backend)
+      console.log("Agregar al carrito:", book);
+      // Ejemplo simple: guardar en localStorage
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      cart.push({ ...book, qty: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("Libro agregado al carrito");
     },
     toggleFavorite(book) {
       book.favorite = !book.favorite;
@@ -89,6 +102,9 @@ export default {
     },
     onSearch(term) {
       this.searchTerm = term;
+    },
+    goToBookDetail(book) {
+      this.$router.push({ name: 'LibroDetalle', params: { id: book.id } });
     }
   },
   mounted() {

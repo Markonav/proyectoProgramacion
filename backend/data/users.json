@@ -1,0 +1,89 @@
+[
+  {
+    "email": "tomas123@gmail.com",
+    "passwordHash": "$2b$10$P4YHrftL5Vy/L8nWQ4eVNOE8svIe3hP6xD5bLyH7sOQvFoQ9JcWPO",
+    "createdAt": "2025-09-28T22:21:22.947Z"
+  },
+  {
+    "email": "maria@gmail.com",
+    "passwordHash": "$2b$10$tdycO2EWHTmdYwobbzvxoe8/zbQBhZgq4lEDrgXet65uXEH00QqHS",
+    "createdAt": "2025-09-29T04:04:11.183Z"
+  },
+  {
+    "email": "pedrito@gmail.com",
+    "passwordHash": "$2b$10$yrpN0DL7wG2BxDArP/tuwOO7OXPb9eO/0FAZ8aaGi5UtnPVcCRI7G",
+    "createdAt": "2025-09-29T04:15:34.504Z"
+  },
+  {
+    "email": "marco@gmail.com",
+    "passwordHash": "$2b$10$wTedgLrLPjHlJ08ZQ.FR9exxJmLDuCq8rfQI4n0A0oU/fqdyVKaP6",
+    "createdAt": "2025-09-29T17:43:28.722Z"
+  },
+  {
+    "email": "marco324@gmail.com",
+    "passwordHash": "$2b$10$DmqnWYKeO5ZanKnX.46QRuU9ccZyBsQSi8/tqv3L0LMMxb4pSdJrW",
+    "createdAt": "2025-09-30T23:07:35.340Z"
+  },
+  {
+    "email": "bstnggg@gmail.com",
+    "passwordHash": "$2b$10$dggU93R51qGIzpR0/JWuyOr/2uT4XkklHCPHQA.I5chwAGSF1bbdq",
+    "createdAt": "2025-10-02T23:54:36.573Z"
+  },
+  {
+    "email": "bstn12345@gmail.com",
+    "passwordHash": "$2b$10$a7c/ix1FPSFVe2NhQ5wQ3.0S5nBdm0soX.RXp8lKW3K.sVQNcVRVW",
+    "createdAt": "2025-10-03T00:15:00.398Z"
+  },
+  {
+    "email": "bas@gmail.com",
+    "passwordHash": "$2b$10$IFz56gXG91HXETJ0U2HEduc/KjHL59ajFAoCrihjf/j5SuU1SazIS",
+    "createdAt": "2025-10-03T00:17:42.472Z"
+  },
+  {
+    "email": "123@gmail.com",
+    "passwordHash": "$2b$10$vBzbA3Z6Hz.PE2YaO5bq7e2H5Tpv6p80xRa/dHkmzb3nBf/0uq4kO",
+    "createdAt": "2025-10-03T00:21:31.693Z"
+  },
+  {
+    "email": "plonplon@gmail.com",
+    "passwordHash": "$2b$10$QidwiCBT6Kupac1hPVuwsOx2y9jOqzqJCvFt1tG2pfVDOHgJaNSjW",
+    "createdAt": "2025-10-04T00:06:33.990Z"
+  },
+  {
+    "email": "plonplonplin@gmail.com",
+    "passwordHash": "$2b$10$47TseAKzeIhx5NECEiyqT.wlRqpBdU7BQ5ohAwktCtUH8s07Ez0ma",
+    "createdAt": "2025-10-04T00:07:22.823Z",
+    "nombre": "Bastian",
+    "apellido": "Benitez",
+    "nickname": "bstn"
+  },
+  {
+    "email": "asd@gmail.com",
+    "passwordHash": "$2b$10$O63WeNFMHefggJGUQR94SepN10MCVCURVhT3OeNQd1EUIQJcYNA7e",
+    "createdAt": "2025-10-04T13:10:40.663Z"
+  },
+  {
+    "email": "hola@gmail.com",
+    "passwordHash": "$2b$10$fTAk9ihZbkNVVfdxZDbijOl8OzaUsWbwnGpKK598/IFzmndgBvMWi",
+    "createdAt": "2025-10-04T15:22:20.645Z",
+    "nombre": "bastuanasdasd",
+    "apellido": "pablo",
+    "nickname": "bstn"
+  },
+  {
+    "email": "nuevo@gmail.com",
+    "passwordHash": "$2b$10$OqqVUhggGskw36IesL8zjuM3JLdR2jyuxWuPMSecan.bU6AsDQ9lC",
+    "createdAt": "2025-10-04T16:32:02.882Z",
+    "nombre": "ASD",
+    "apellido": "fgh",
+    "nickname": "asd123"
+  },
+  {
+    "email": "prueba@gmail.com",
+    "passwordHash": "$2b$10$EImAzTHOBZ3hl568rnVVCO6dmYVjnXxvStdwpjjLCbzM3hinL3Vbq",
+    "createdAt": "2025-10-04T16:39:35.247Z",
+    "nombre": "Pablo",
+    "apellido": "papaa",
+    "nickname": "omg"
+  }
+]

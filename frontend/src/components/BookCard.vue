@@ -2,9 +2,9 @@
   <article :class="['libro-card', { 'libro-card--carrusel': modo === 'carrusel' } ]">
     <div :class="['libro-img', { 'libro-img--carrusel': modo === 'carrusel' } ]">
       <img
-        :src="book.image || '/default-cover.png'"
+        class="cover-img"
+        :src="book.image ? book.image : 'http://localhost:3000/uploads/default.svg'"
         alt="Portada"
-        :style="modo === 'carrusel' ? 'width:100%;height:200px;object-fit:cover;' : 'width:100%;height:100%;object-fit:cover;'"
       />
     </div>
 

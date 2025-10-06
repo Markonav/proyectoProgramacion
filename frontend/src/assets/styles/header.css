@@ -34,7 +34,6 @@
     color:#fff;
     font-weight: bold;
     transition: color 0.3s ease;
-    font-size: 22px;
 }
 .top-bar .user-tools a:hover {
     color: var(--c-dark);

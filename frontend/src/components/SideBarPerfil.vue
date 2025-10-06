@@ -21,10 +21,12 @@ import { useRouter } from "vue-router"
 const router = useRouter()
 
 function cerrarSesion() {
-  // aquí iría la lógica real de logout
+  // Borrar token y datos de usuario
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
   alert("Sesión cerrada 🚪")
   router.push("/login")
 }
 </script>
 
-<style src="@/assets/styles/sideBarCuenta.css"></style>
+<style src="@/assets/styles/sideBarPerfil.css"></style>
