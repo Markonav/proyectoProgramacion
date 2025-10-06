@@ -1,3 +1,9 @@
+.btns-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: left;
+}
 .libro-card {
   background: #fff;
   border: 1px solid #e9e3d9;
@@ -86,6 +92,7 @@
   background: var(--c-primary);
   color: #fff;
   border: 0;
+  font-size: 13px;
   border-radius: 8px;
   padding: 8px 12px;
   font-weight: 800;
