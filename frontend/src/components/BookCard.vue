@@ -2,9 +2,9 @@
   <article :class="['libro-card', { 'libro-card--carrusel': modo === 'carrusel' } ]">
     <div :class="['libro-img', { 'libro-img--carrusel': modo === 'carrusel' } ]">
       <img
-        class="cover-img"
-        :src="book.image ? book.image : 'http://localhost:3000/uploads/default.svg'"
+        :src="book.image || '/default-cover.png'"
         alt="Portada"
+        :style="modo === 'carrusel' ? 'width:100%;height:200px;object-fit:cover;' : 'width:100%;height:100%;object-fit:cover;'"
       />
     </div>
 
@@ -15,7 +15,10 @@
       <div class="libro-precio">{{ formattedPrice }}</div>
 
       <div class="libro-acciones">
-        <button class="btn-small" @click="$emit('add-to-cart', book)">Agregar</button>
+        <div class="btns-vertical">
+          <button class="btn-small" @click="$emit('add-to-cart', book)">Agregar</button>
+          <button class="btn-small" @click="$emit('view-details', book)">Ver detalles</button>
+        </div>
         <button
           class="icon-btn"
           :class="{ active: favorito || book.favorite }"
