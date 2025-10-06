@@ -11,6 +11,7 @@ import AgregarLibro from '@/views/AgregarLibro.vue'
 import Categorias from '@/views/Categorias.vue'
 import Tendencia from '@/views/Tendencia.vue'
 import MásLeídos from '@/views/MásLeídos.vue'
+import LibroDetalle from '@/views/LibroDetalle.vue'
 
 
 const router = createRouter({
@@ -21,6 +22,7 @@ const router = createRouter({
     { path: '/catalogo', component: Catalogo },
     { path: '/tendencias', component: Tendencia },
     { path: '/categorias', component: Categorias },
+    { path: '/libro/:id', name: 'LibroDetalle', component: LibroDetalle },
     { path: '/login', component: Login },
     { path: '/agregarLibro', component: AgregarLibro },
     { path: '/másLeídos', component: MásLeídos },
