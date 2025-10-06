@@ -53,7 +53,7 @@ function editarLibro(id, cambios) {
   if (idx === -1) return null;
 
   // Solo actualizar campos permitidos
-  const permitido = ['titulo', 'autor', 'categoria', 'PrecioRenta', 'cover'];
+  const permitido = ['titulo', 'autor', 'categoria', 'sinopsis', 'PrecioRenta', 'cover'];
   Object.keys(cambios).forEach(k => {
     if (permitido.includes(k)) {
       libros[idx][k] = cambios[k];
