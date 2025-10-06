@@ -4,7 +4,7 @@ const { leerCategorias } = require('../data/categorias');
 
 function addLibro(req, res) {
   try {
-    const { titulo, autor, categoria, PrecioRenta } = req.body;
+    const { titulo, autor, categoria, sinopsis, PrecioRenta } = req.body;
 
     if (!titulo || !autor || !categoria || PrecioRenta === undefined) {
       return res.status(400).json({ message: 'Todos los campos son requeridos' });
@@ -36,6 +36,7 @@ function addLibro(req, res) {
       autor: String(autor).trim(),
       categoria: categoria,
       PrecioRenta: Number(PrecioRenta),
+      sinopsis: String(sinopsis).trim(),
       cover: coverPath
     };
 
@@ -54,6 +55,17 @@ function getLibros(req, res) {
     return res.json(data);
   } catch {
     return res.status(500).json({ message: 'Error al obtener libros' });
+  }
+}
+
+function getLibroById(req, res) {
+  try {
+    const id = req.params.id;
+    const libro = listarLibros().find(l => String(l.id) === String(id));
+    if (!libro) return res.status(404).json({ message: 'Libro no encontrado' });
+    return res.json(libro);
+  } catch {
+    return res.status(500).json({ message: 'Error al obtener libro' });
   }
 }
 
@@ -81,8 +93,7 @@ function updateLibro(req, res) {
 
     // recabar cambios permitidos
     // En el formulario de edición esperamos los mismos campos que para agregar
-    const { titulo, autor, categoria } = req.body;
-    let { PrecioRenta } = req.body;
+    const { titulo, autor, categoria, sinopsis, PrecioRenta } = req.body;
 
     // validar campos requeridos
     if (!titulo || !autor || !categoria || PrecioRenta === undefined) {
@@ -106,13 +117,18 @@ function updateLibro(req, res) {
       titulo: String(titulo).trim(),
       autor: String(autor).trim(),
       categoria: categoria,
-      PrecioRenta: PrecioRenta
+      PrecioRenta: PrecioRenta,
+      sinopsis: String(sinopsis).trim()
     };
 
     // si viene archivo, actualizar cover
     if (req.file && req.file.filename) {
       cambios.cover = `/uploads/${req.file.filename}`;
     }
+      // Solo agregar sinopsis si viene en el body (puede ser vacía)
+      if (typeof sinopsis !== 'undefined') {
+        cambios.sinopsis = String(sinopsis);
+      }
 
     const actualizado = editarLibro(id, cambios);
     if (!actualizado) return res.status(404).json({ message: 'Libro no encontrado' });
@@ -123,5 +139,5 @@ function updateLibro(req, res) {
   }
 }
 
-module.exports = { addLibro, getLibros, deleteLibro, updateLibro };
+module.exports = { addLibro, getLibros, getLibroById, deleteLibro, updateLibro };
 
