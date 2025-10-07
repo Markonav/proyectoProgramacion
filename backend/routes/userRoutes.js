@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
-const { postRegister, postLogin, putUpdateUser, putChangePassword, getUserFavs, putUserFavs } = require('../controllers/userController');
+const { postRegister, postLogin, putUpdateUser, putChangePassword, getUserFavs, putUserFavs, deleteUser } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -30,6 +30,8 @@ router.put('/update', upload.single('avatar'), putUpdateUser);
 // Favoritos: obtener y actualizar
 router.get('/favs', getUserFavs);
 router.put('/favs', putUserFavs);
+// Eliminar cuenta de usuario
+router.delete('/delete', deleteUser);
 
 module.exports = router;
 
