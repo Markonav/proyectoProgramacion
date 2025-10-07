@@ -1,7 +1,7 @@
 <template>
   <header class="top-bar">
     <div class="logo">
-      <RouterLink to="/menu">  <img src="" alt="Logo" /> </RouterLink>
+      <RouterLink to="/menu">  <img src="@/assets/recursos/logos/logo.png" alt="Logo" /> </RouterLink>
     </div>
     <nav class="menu">
       <RouterLink to="/tendencias">En Tendencia</RouterLink>
@@ -10,9 +10,20 @@
       <RouterLink to="/categorias">Categorías</RouterLink>
     </nav>
     <div class="user-tools">
-      <input type="text" placeholder="Buscar" />
-      <a href="#" @click.prevent="abrirCarrito">Carrito</a>
-      <a href="#" @click.prevent="irAEditarPerfil">{{ nombreUsuario }}</a>
+      <div class="search-container">
+        <input type="text" v-model="busqueda" class="search-input" /> 
+        <button @click.prevent="buscar" class="search-btn"> 
+          <img src="@/assets/recursos/imgs/lupa.png" alt="Buscar"/>
+        </button>
+      </div>
+      <button @click.prevent="abrirCarrito" class="cart-link">
+        <img src="@/assets/recursos/imgs/carrito_icon.webp" alt="Carrito" class="icon" />
+        <span>Carrito</span>
+      </button>
+      <button @click.prevent="irAEditarPerfil" class="user-link">
+        <img src="@/assets/recursos/imgs/user_icon.webp" alt="Usuario" class="icon" />
+        <span>{{ nombreUsuario }}</span>
+      </button>
     </div>
     <!-- No mostrar el sidebar en páginas de autenticación -->
     <CartSidebar v-if="!isAuthRoute" :visible="showCart" @close="showCart = false" />
@@ -20,47 +31,60 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import CartSidebar from './CartSidebar.vue';
 
 export default {
   name: "Header",
   components: { CartSidebar },
-  setup() {
-    const router = useRouter();
-    const showCart = ref(false);
-  // solo bloquear en la ruta de login
-  const authPaths = ['/login'];
-    function abrirCarrito() {
-      if (isAuthRoute.value) return; // no abrir en la página de login
-      showCart.value = true;
+  data() {
+    return {
+      showCart: false,
+      authPaths: ['/login'],
+      busqueda: ''
+    };
+  },
+  computed: {
+    isAuthRoute() {
+      return this.authPaths.includes(this.$route?.path || '');
+    },
+    nombreUsuario() {
+      let nombreUsuario = 'Mi Cuenta';
+      try {
+        const user = JSON.parse(localStorage.getItem('user')) || {};
+        const nick = (user.nickname || '').toString().trim();
+        const nombre = (user.nombre || '').toString().trim();
+        if (nick) {
+          nombreUsuario = nick;
+        } else if (nombre) {
+          nombreUsuario = nombre;
+        } else if (user.email) {
+          nombreUsuario = user.email.split('@')[0];
+        }
+      } catch {}
+      return nombreUsuario;
     }
-    // computed para que la plantilla reaccione si cambia la ruta
-    const isAuthRoute = computed(() => authPaths.includes(router.currentRoute.value?.path || ''));
-    function irAEditarPerfil() {
+  },
+  methods: {
+    buscar() {
+      if (this.busqueda.trim() !== '') {
+        this.$router.push({
+          name: 'Search',
+          query: { search: this.busqueda.trim() }
+        });
+      }
+    },
+    abrirCarrito() {
+      if (this.isAuthRoute) return; // no abrir en la página de login
+      this.showCart = true;
+    },
+    irAEditarPerfil() {
       const user = JSON.parse(localStorage.getItem('user'));
       if (!user || !user.email) {
-        router.push('/login');
+        this.$router.push('/login');
       } else {
-        router.push('/cuenta/editar');
+        this.$router.push('/cuenta/editar');
       }
     }
-    // Obtener usuario de localStorage: preferir `nickname`, luego `nombre`, luego prefijo del email
-    let nombreUsuario = 'Mi Cuenta';
-    try {
-      const user = JSON.parse(localStorage.getItem('user')) || {};
-      const nick = (user.nickname || '').toString().trim();
-      const nombre = (user.nombre || '').toString().trim();
-      if (nick) {
-        nombreUsuario = nick;
-      } else if (nombre) {
-        nombreUsuario = nombre;
-      } else if (user.email) {
-        nombreUsuario = user.email.split('@')[0];
-      }
-    } catch {}
-    return { irAEditarPerfil, nombreUsuario, showCart, abrirCarrito, isAuthRoute };
   }
 }
 </script>
