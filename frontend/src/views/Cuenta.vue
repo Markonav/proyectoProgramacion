@@ -14,7 +14,7 @@
 <script>
 import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
-import SideBarPerfil from '@/components/SideBarPerfil.vue';
+import SideBarPerfil from '@/components/SideBarCuenta.vue';
 export default {
   name: 'Cuenta',
   components: { Header, Footer, SideBarPerfil }
