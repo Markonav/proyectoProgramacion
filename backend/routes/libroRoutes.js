@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { addLibro, getLibros, deleteLibro, updateLibro } = require("../controllers/libroController");
+const { addLibro, getLibros, getLibroById, deleteLibro, updateLibro } = require("../controllers/libroController");
 const multer = require('multer');
 const path = require('path');
 
@@ -20,6 +20,7 @@ const upload = multer({ storage });
 
 router.post("/", upload.single('cover'), addLibro);
 router.get("/", getLibros);
+router.get("/:id", getLibroById);
 router.put("/:id", upload.single('cover'), updateLibro);
 router.delete("/:id", deleteLibro);
 
