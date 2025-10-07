@@ -1,7 +1,7 @@
 const { registrarUsuario, loginUsuario, actualizarUsuario } = require('../services/userService');
 const { obtenerFavoritos, actualizarFavoritos } = require('../services/userService');
 const jwt = require('jsonwebtoken');
-const { cambiarContrasena } = require('../services/userService');
+const { cambiarContrasena, eliminarUsuario } = require('../services/userService');
 
 async function postRegister(req, res) {
   try {
@@ -94,5 +94,17 @@ async function putUserFavs(req, res) {
   }
 }
 
-module.exports = { postRegister, postLogin, putUpdateUser, putChangePassword, getUserFavs, putUserFavs };
+// Eliminar cuenta de usuario
+async function deleteUser(req, res) {
+  try {
+    const { email, password } = req.body;
+    const result = await eliminarUsuario({ email, password });
+    res.json(result);
+  } catch (e) {
+    console.error('[deleteUser]', e);
+    res.status(e.status || 400).json({ message: e.message || 'Error eliminando usuario' });
+  }
+}
+
+module.exports = { postRegister, postLogin, putUpdateUser, putChangePassword, getUserFavs, putUserFavs, deleteUser };
 
