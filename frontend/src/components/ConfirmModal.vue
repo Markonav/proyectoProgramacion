@@ -7,6 +7,16 @@
         </header>
         <section class="cm-body">
           <p v-html="message"></p>
+          <div v-if="showInput" class="cm-input-group">
+            <input 
+              v-model="inputValue"
+              :type="inputType" 
+              :placeholder="inputPlaceholder"
+              class="cm-input"
+              @keyup.enter="onConfirm"
+              ref="inputRef"
+            />
+          </div>
         </section>
         <footer class="cm-actions">
           <button class="cm-btn cm-cancel" @click="onCancel">Cancelar</button>
@@ -23,12 +33,41 @@ export default {
   props: {
     visible: { type: Boolean, default: false },
     title: { type: String, default: 'Confirmar' },
-    message: { type: String, default: '¿Estás seguro?' }
+    message: { type: String, default: '¿Estás seguro?' },
+    showInput: { type: Boolean, default: false },
+    inputType: { type: String, default: 'text' },
+    inputPlaceholder: { type: String, default: '' }
   },
   emits: ['confirm', 'cancel'],
+  data() {
+    return {
+      inputValue: ''
+    }
+  },
+  watch: {
+    visible(newVal) {
+      if (newVal && this.showInput) {
+        this.$nextTick(() => {
+          this.$refs.inputRef?.focus();
+        });
+      }
+      if (!newVal) {
+        this.inputValue = '';
+      }
+    }
+  },
   methods: {
-    onConfirm() { this.$emit('confirm') },
-    onCancel() { this.$emit('cancel') }
+    onConfirm() { 
+      if (this.showInput) {
+        this.$emit('confirm', this.inputValue);
+      } else {
+        this.$emit('confirm');
+      }
+    },
+    onCancel() { 
+      this.inputValue = '';
+      this.$emit('cancel');
+    }
   }
 }
 </script>
@@ -56,6 +95,20 @@ export default {
 .cm-title { margin: 0; font-size: 1.05rem; color: #222 }
 .cm-body { padding: 18px 20px; color: #444; font-size: 0.98rem }
 .cm-actions { display:flex; gap:10px; justify-content:flex-end; padding: 12px 20px; border-top: 1px solid #f0f0f0 }
+.cm-input-group { margin-top: 16px }
+.cm-input { 
+  width: 100%; 
+  padding: 10px 12px; 
+  border: 1px solid #ddd; 
+  border-radius: 6px; 
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+.cm-input:focus { 
+  outline: none; 
+  border-color: var(--c-primary, #007bff);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
 .cm-btn { min-width: 96px; padding: 8px 12px; border-radius:6px; border:none; cursor:pointer; font-weight:600 }
 .cm-cancel { background: #f0f0f0; color: #333 }
 .cm-confirm { background: #e53935; color: #fff }
