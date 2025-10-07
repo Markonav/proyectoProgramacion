@@ -43,7 +43,7 @@ export default {
     return {
       libros: [],       // lista de libros (traída del backend o mock)
       searchTerm: "",
-      loading: false     // estado de carga
+      loading: true     // estado de carga
     };
   },
   computed: {
@@ -69,12 +69,12 @@ export default {
         const backendBase = 'http://localhost:3000';
         // una vez traídos los libros, aplicar favoritos guardados en localStorage (o los traídos desde servidor)
         const favs = JSON.parse(localStorage.getItem('favs') || '{}');
-        this.books = data.map((b, idx) => ({
+        this.libros = data.map((b, idx) => ({
           id: b.id ?? idx,
           title: b.titulo ?? "Sin título",
           author: b.autor ?? "Autor desconocido",
           categoria: b.categoria ?? "Sin categoría",
-          price: b.PrecioRenta ?? 1990,
+          price: b.PrecioRenta ?? 0,
           // el backend guarda la ruta en `cover` (ej: /uploads/xxx.png)
           // convertimos rutas relativas como '/uploads/xxx' a URL absoluta apuntando al backend
           image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
@@ -171,7 +171,7 @@ export default {
     window.addEventListener('favs:changed', () => {
       // actualizar flags en memoria
       const favs = JSON.parse(localStorage.getItem('favs') || '{}');
-      this.books = this.books.map(b => ({ ...b, favorite: !!favs[b.id] }));
+      this.libros = this.libros.map(b => ({ ...b, favorite: !!favs[b.id] }));
     });
   }
 };
