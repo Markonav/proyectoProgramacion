@@ -1,12 +1,45 @@
 .banner {
-  background: var(--c-secondary);
-  padding: 60px 20px;
+  position: relative;
+  background-image: url('@/assets/recursos/logos/banner.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 80px 20px;
   text-align: center;
-  color: var(--c-dark);
+  color: #fff;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.banner-info {
+  position: relative;
+  z-index: 2;
 }
 .banner h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
+  font-size: 36px;
+  margin-bottom: 15px;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+}
+
+.banner p {
+  font-size: 18px;
+  margin-bottom: 25px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 .banner button, .btn {
   background: var(--c-primary);
@@ -24,8 +57,9 @@
 }
 .carousel h2 {
   margin-bottom: 12px;
+  text-align: left;
   font-weight: bold;
-  color: var(--c-primary);
+  color: var(--c-dark);
 }
 .carousel-track {
   display: flex;
@@ -36,7 +70,7 @@
 }
 .category-buttons {
   display: flex;
-  gap: 25px;
+  gap: 20px;
   overflow-x: auto;
   padding-bottom: 5px;
 }
