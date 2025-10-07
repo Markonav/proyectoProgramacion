@@ -89,78 +89,168 @@
         <div class="config-section">
             <p>Una vez que elimines tu cuenta, no podrás recuperarla. Todos tus datos, favoritos y configuraciones se perderán permanentemente.</p>
             <div class="form-actions">
-                <button type="button" class="btn btn-danger" @click="eliminarCuenta">Eliminar Cuenta</button>
+                <button type="button" class="btn btn-danger" @click="mostrarConfirmacion">Eliminar Cuenta</button>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Modal de confirmación para eliminar cuenta -->
+<ConfirmModal
+    :visible="showConfirmModal"
+    title="Eliminar Cuenta"
+    message="¿Estás seguro de que deseas eliminar tu cuenta?<br><br><strong>Esta acción NO se puede deshacer.</strong><br>Se perderán todos tus datos, favoritos y configuraciones."
+    @confirm="confirmarEliminacion"
+    @cancel="cancelarEliminacion"
+/>
+
+<!-- Modal para ingresar contraseña -->
+<ConfirmModal
+    :visible="showPasswordModal"
+    title="Confirmar Identidad"
+    message="Para confirmar la eliminación de tu cuenta, ingresa tu contraseña:"
+    :showInput="true"
+    inputType="password"
+    inputPlaceholder="Tu contraseña"
+    @confirm="eliminarCuentaFinal"
+    @cancel="cancelarPassword"
+/>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
+import ConfirmModal from '@/components/ConfirmModal.vue'
 
-const privacidad = ref({
-    publico: true,
-    mostrarLeidos: true,
-    mostrarFavoritos: true
-})
+export default {
+  name: "Configuracion",
+  components: { ConfirmModal },
+  data() {
+    return {
+      privacidad: {
+        publico: true,
+        mostrarLeidos: true,
+        mostrarFavoritos: true
+      },
+      // Estados para los modales
+      showConfirmModal: false,
+      showPasswordModal: false,
+      passwordInput: '',
+      notificaciones: {
+        email: true,
+        novedadesAutores: true,
+        ofertas: false
+      },
+      seguridad: {
+        actual: '',
+        nueva: '',
+        confirmar: ''
+      }
+    };
+  },
+  methods: {
+    validarNueva(n) {
+      const s = String(n ?? '');
+      return s.length >= 6 && /[A-Za-z]/.test(s) && /\d/.test(s);
+    },
+    async cambiarPassword() {
+      const user = JSON.parse(localStorage.getItem('user')) || {};
+      if (!user.email) return alert('No hay sesión activa.');
 
-const notificaciones = ref({
-    email: true,
-    novedadesAutores: true,
-    ofertas: false
-})
-
-const seguridad = ref({
-    actual: '',
-    nueva: '',
-    confirmar: ''
-})
-
-function validarNueva(n) {
-    const s = String(n ?? '');
-    return s.length >= 6 && /[A-Za-z]/.test(s) && /\d/.test(s);
-}
-
-async function cambiarPassword() {
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    if (!user.email) return alert('No hay sesión activa.');
-
-    if (!seguridad.value.actual || !seguridad.value.nueva || !seguridad.value.confirmar) {
+      if (!this.seguridad.actual || !this.seguridad.nueva || !this.seguridad.confirmar) {
         return alert('Completa todos los campos');
-    }
-    if (seguridad.value.nueva !== seguridad.value.confirmar) {
+      }
+      if (this.seguridad.nueva !== this.seguridad.confirmar) {
         return alert('La nueva contraseña y la confirmación no coinciden');
-    }
-    if (!validarNueva(seguridad.value.nueva)) {
+      }
+      if (!this.validarNueva(this.seguridad.nueva)) {
         return alert('La nueva contraseña debe tener al menos 6 caracteres, incluir letras y números');
-    }
+      }
 
-    try {
+      try {
         const token = localStorage.getItem('token');
         const res = await fetch('http://localhost:3000/api/users/password', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
-            body: JSON.stringify({ email: user.email, currentPassword: seguridad.value.actual, newPassword: seguridad.value.nueva })
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+          body: JSON.stringify({ email: user.email, currentPassword: this.seguridad.actual, newPassword: this.seguridad.nueva })
         });
         const data = await res.json();
         if (res.ok) {
-            alert(data.message || 'Contraseña cambiada correctamente');
-            // Limpiar campos
-            seguridad.value.actual = '';
-            seguridad.value.nueva = '';
-            seguridad.value.confirmar = '';
+          alert(data.message || 'Contraseña cambiada correctamente');
+          // Limpiar campos
+          this.seguridad.actual = '';
+          this.seguridad.nueva = '';
+          this.seguridad.confirmar = '';
         } else {
-            alert(data.message || 'Error cambiando la contraseña');
+          alert(data.message || 'Error cambiando la contraseña');
         }
-    } catch (e) {
+      } catch (e) {
         alert('Error de conexión con el servidor');
-    }
-}
+      }
+    },
+    mostrarConfirmacion() {
+      const user = JSON.parse(localStorage.getItem('user')) || {};
+      if (!user.email) {
+        alert('No hay sesión activa.');
+        return;
+      }
+      this.showConfirmModal = true;
+    },
+    confirmarEliminacion() {
+      this.showConfirmModal = false;
+      this.showPasswordModal = true;
+    },
+    cancelarEliminacion() {
+      this.showConfirmModal = false;
+    },
+    cancelarPassword() {
+      this.showPasswordModal = false;
+      this.passwordInput = '';
+    },
+    async eliminarCuentaFinal(password) {
+      this.showPasswordModal = false;
+      
+      if (!password || password.trim() === '') {
+        alert('Debes ingresar tu contraseña para continuar.');
+        return;
+      }
 
-function eliminarCuenta() {
-    // Aquí iría la lógica para eliminar la cuenta
-    alert('Cuenta eliminada (demo)');
+      const user = JSON.parse(localStorage.getItem('user')) || {};
+
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:3000/api/users/delete', {
+          method: 'DELETE',
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify({ 
+            email: user.email, 
+            password: password 
+          })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          alert('Cuenta eliminada correctamente.\n\nSentimos verte partir. ¡Gracias por usar nuestra plataforma!');
+          
+          // Limpiar todo el localStorage
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          localStorage.removeItem('favs');
+          localStorage.removeItem('cart');
+          
+          // Redirigir al login
+          window.location.href = '/login';
+        } else {
+          alert(data.message || 'Error al eliminar la cuenta. Verifica tu contraseña.');
+        }
+      } catch (error) {
+        alert('Error de conexión con el servidor. Intenta nuevamente.');
+        console.error('Error eliminando cuenta:', error);
+      }
+    }
+  }
 }
 </script>
 
