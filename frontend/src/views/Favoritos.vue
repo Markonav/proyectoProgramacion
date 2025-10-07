@@ -43,7 +43,7 @@ export default {
           id: b.id ?? idx,
           title: b.titulo ?? 'Sin título',
           author: b.autor ?? 'Autor desconocido',
-          price: b.PrecioRenta ?? 1990,
+          price: b.PrecioRenta ?? 0,
           image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
           categoria: b.categoria || ''
         }));
