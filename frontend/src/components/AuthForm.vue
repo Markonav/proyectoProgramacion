@@ -20,7 +20,7 @@
     </div>
 
     <div class="image-box">
-      <img src="" alt="Portada" class="imagen" />
+      <img src="@/assets/recursos/logos/portada_inicio.webp" alt="Portada" class="imagen" />
     </div>
   </div>
 </template>
@@ -74,7 +74,7 @@ export default {
             this.message = data.message || "Inicio de sesión exitoso"
             this.ok = true
             setTimeout(() => {
-              this.$router.push('/catalogo')
+              this.$router.push('/menu')
             }, 800)
             return
           }
