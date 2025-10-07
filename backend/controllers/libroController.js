@@ -101,8 +101,8 @@ function updateLibro(req, res) {
     }
 
     // validar PrecioRenta numérico y no negativo
-    PrecioRenta = Number(PrecioRenta);
-    if (isNaN(PrecioRenta) || PrecioRenta < 0) {
+    const precioNumerico = Number(PrecioRenta);
+    if (isNaN(precioNumerico) || precioNumerico < 0) {
       return res.status(400).json({ message: 'PrecioRenta debe ser un número no negativo' });
     }
 
@@ -117,18 +117,18 @@ function updateLibro(req, res) {
       titulo: String(titulo).trim(),
       autor: String(autor).trim(),
       categoria: categoria,
-      PrecioRenta: PrecioRenta,
-      sinopsis: String(sinopsis).trim()
+      PrecioRenta: precioNumerico
     };
+
+    // Solo agregar sinopsis si viene en el body (puede ser vacía)
+    if (typeof sinopsis !== 'undefined') {
+      cambios.sinopsis = String(sinopsis);
+    }
 
     // si viene archivo, actualizar cover
     if (req.file && req.file.filename) {
       cambios.cover = `/uploads/${req.file.filename}`;
     }
-      // Solo agregar sinopsis si viene en el body (puede ser vacía)
-      if (typeof sinopsis !== 'undefined') {
-        cambios.sinopsis = String(sinopsis);
-      }
 
     const actualizado = editarLibro(id, cambios);
     if (!actualizado) return res.status(404).json({ message: 'Libro no encontrado' });
