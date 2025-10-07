@@ -36,7 +36,7 @@
     data() {
         return {
         libro: null,
-        loading: false
+        loading: true
         };
     },
     methods: {
@@ -63,13 +63,17 @@
             this.loading = false;
         }
         },
-        addToCart(libro) {
-        // lógica de agregar al carrito
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        cart.push({ ...libro, qty: 1 });
-        localStorage.setItem('cart', JSON.stringify(cart));
-        alert('Libro agregado al carrito');
-        }
+        addToCart(book) {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const exists = cart.some(item => item.id === book.id);
+      if (exists) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'El libro ya está en el carrito', type: 'info', duration: 2200 } }));
+        return;
+      }
+      cart.push({ ...book, qty: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Libro agregado al carrito', type: 'success', duration: 2500 } }));
+    }
     },
     mounted() {
         this.fetchLibro();
