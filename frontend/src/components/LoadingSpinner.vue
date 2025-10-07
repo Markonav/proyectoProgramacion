@@ -12,7 +12,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .loading-section {
   display: flex;
   justify-content: center;
