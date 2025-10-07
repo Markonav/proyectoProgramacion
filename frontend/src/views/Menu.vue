@@ -4,6 +4,7 @@
     <main>
       <!-- Banner principal -->
       <section class="banner">
+        <div class="banner-overlay"></div>
         <div class="banner-info">
           <h1>Novedades del Mes</h1>
           <p>Descubre los últimos lanzamientos y empieza a leer hoy mismo.</p>
@@ -121,7 +122,7 @@ export default {
       libros: [],
       categorias: [],
       categoriaSeleccionada: null,
-      loading: false
+      loading: true
     }
   },
   methods: {
@@ -131,8 +132,8 @@ export default {
         const res = await fetch("http://localhost:3000/api/libros"); 
         if (!res.ok) throw new Error("No hay respuesta");
         const data = await res.json();
-        // Aseguramos estructura mínima
         const backendBase = 'http://localhost:3000';
+        const favs = JSON.parse(localStorage.getItem('favs') || '{}');
         this.libros = data.map((b, idx) => ({
           id: b.id ?? idx,
           title: b.titulo ?? "Sin título",
@@ -140,7 +141,7 @@ export default {
           categoria: b.categoria ?? "Sin categoría",
           price: b.PrecioRenta ?? 0,
           image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
-          favorite: !!b.favorite,
+          favorite: !!favs[(b.id ?? idx)],
           tendencia: !!b.tendencia,
           masLeido: !!b.masLeido,
           novedad: !!b.novedad
@@ -167,13 +168,51 @@ export default {
       this.categoriaSeleccionada = cat;
     },
     addToCart(book) {
-      // Implementa tu lógica de agregar al carrito aquí
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const exists = cart.some(item => item.id === book.id);
+      if (exists) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'El libro ya está en el carrito', type: 'info', duration: 2200 } }));
+        return;
+      }
+      cart.push({ ...book, qty: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Libro agregado al carrito', type: 'success', duration: 2500 } }));
     },
-    toggleFavorite(book) {
-      // Implementa tu lógica de favoritos aquí
+    async toggleFavorite(book) {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (!user || !user.email) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Inicia sesión para usar favoritos', type: 'info', duration: 2800 } }));
+        this.$router.push('/login');
+        return;
+      }
+      book.favorite = !book.favorite;
+      const favs = JSON.parse(localStorage.getItem("favs") || "{}");
+      favs[book.id] = book.favorite;
+      localStorage.setItem("favs", JSON.stringify(favs));
+      window.dispatchEvent(new CustomEvent('favs:changed', { detail: { id: book.id, favorite: book.favorite } }));
+      const msg = book.favorite ? 'Agregado a favoritos' : 'Eliminado de favoritos';
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: msg, type: 'success', duration: 2000 } }));
+      if (user && user.email) {
+        try {
+          const token = user.token || null;
+          await fetch('http://localhost:3000/api/users/favs', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ email: user.email, favs })
+          });
+        } catch (err) {
+          window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'No se pudo sincronizar favoritos con el servidor', type: 'error', duration: 3000 } }));
+        }
+      }
     },
     goToBookDetail(book) {
       this.$router.push({ name: 'LibroDetalle', params: { id: book.id } });
+    },
+    verCatalogo() {
+      this.$router.push({ name: 'Catalogo' });
     }
   },
   computed: {
@@ -191,9 +230,33 @@ export default {
       return this.libros.filter(b => b.categoria === this.categoriaSeleccionada);
     }
   },
-  mounted(){
+  mounted() {
+    // Sincronizar favoritos desde backend si hay usuario logueado
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const loadServerFavs = async () => {
+      if (!user || !user.email) return;
+      try {
+        const token = user.token || null;
+        const res = await fetch(`http://localhost:3000/api/users/favs?email=${encodeURIComponent(user.email)}`, {
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          }
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const serverFavs = json.favs || {};
+        localStorage.setItem('favs', JSON.stringify(serverFavs));
+      } catch (e) {
+        // ignore - keep local favs
+      }
+    };
+    loadServerFavs().then(() => this.fetchBooks());
+    // escuchar cambios de favoritos para recargar UI si vienen de otra vista
+    window.addEventListener('favs:changed', () => {
+      const favs = JSON.parse(localStorage.getItem('favs') || '{}');
+      this.libros = this.libros.map(b => ({ ...b, favorite: !!favs[b.id] }));
+    });
     this.fetchCategorias();
-    this.fetchBooks();
   }
 }
 </script>
