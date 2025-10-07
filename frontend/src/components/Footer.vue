@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <p>GestorLibros ©20xx</p>
+    <p>Readly</p>
   </footer>
 </template>
 
