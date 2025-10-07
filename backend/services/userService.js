@@ -16,7 +16,7 @@ const validPass = (p) => {
 
 // Validaciones para nombre/apellido/nickname
 const validName = (n) => /^[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,40}$/.test(String(n || ''));
-const validNick = (n) => /^[A-Za-z0-9_]{3,20}$/.test(String(n || ''));
+const validNick = (n) => /^[A-Za-z0-9_]{3,8}$/.test(String(n || ''));
 
 function validarCredenciales(email, password) {
   if (!validEmail(email)) {
@@ -182,5 +182,34 @@ async function cambiarContrasena({ email, currentPassword, newPassword }) {
   return safe;
 }
 
-module.exports = { registrarUsuario, loginUsuario, actualizarUsuario, cambiarContrasena, obtenerFavoritos, actualizarFavoritos };
+// Eliminar usuario: verifica contraseña y elimina la cuenta
+async function eliminarUsuario({ email, password }) {
+  if (!email) {
+    const err = new Error('Email requerido'); err.status = 400; throw err;
+  }
+  if (!password) {
+    const err = new Error('Contraseña requerida para eliminar cuenta'); err.status = 400; throw err;
+  }
+
+  const usuarios = leerUsuarios();
+  const e = normEmail(email);
+  const idx = usuarios.findIndex(u => normEmail(u.email) === e);
+  if (idx === -1) {
+    const err = new Error('Usuario no encontrado'); err.status = 404; throw err;
+  }
+
+  const user = usuarios[idx];
+  const ok = await bcrypt.compare(String(password), user.passwordHash || '');
+  if (!ok) {
+    const err = new Error('Contraseña incorrecta'); err.status = 401; throw err;
+  }
+
+  // Eliminar usuario del array
+  usuarios.splice(idx, 1);
+  escribirUsuarios(usuarios);
+
+  return { message: 'Cuenta eliminada correctamente' };
+}
+
+module.exports = { registrarUsuario, loginUsuario, actualizarUsuario, cambiarContrasena, obtenerFavoritos, actualizarFavoritos, eliminarUsuario };
 
