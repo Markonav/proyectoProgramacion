@@ -3,7 +3,7 @@
 }
 
 .perfil__title { 
-  color: var(--c-primary); 
+  color: var(--c-dark); 
   font-size: 32px; 
   margin: 0 0 16px; 
 }
