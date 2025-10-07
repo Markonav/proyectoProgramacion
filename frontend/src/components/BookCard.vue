@@ -16,7 +16,7 @@
 
       <div class="libro-acciones">
         <div class="btns-vertical">
-          <button class="btn-small" @click="$emit('add-to-cart', book)">Agregar</button>
+          <button class="btn-small" @click="$emit('add-to-cart', book)">Agregar <img src="@/assets/recursos/imgs/carrito_icon.webp" alt="Carrito" class="icon" /></button>
           <button class="btn-small" @click="$emit('view-details', book)">Ver detalles</button>
         </div>
         <button
@@ -81,5 +81,12 @@ export default {
   font-size: 0.95rem;
   color: #888;
   margin-bottom: 2px;
+}
+.libro-acciones .btns-vertical .icon{
+  width: 20px;
+  height: auto;
+  align-items: center;
+  justify-content: center;
+  filter: brightness(0) invert(1);
 }
 </style>
