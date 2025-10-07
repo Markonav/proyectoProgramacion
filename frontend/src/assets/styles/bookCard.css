@@ -49,6 +49,32 @@
 }
 
   /* Ajustes responsive: en pantallas pequeñas reducimos la altura para que las tarjetas no sean demasiado altas */
+  @media (max-width: 768px) {
+    .libro-card {
+      max-width: none; /* Remover límite para móviles */
+    }
+    
+    .libro-img {
+      height: 200px;
+    }
+    
+    .libro-info {
+      padding: 12px;
+    }
+    
+    .libro-titulo {
+      font-size: 15px;
+    }
+    
+    .libro-autor {
+      font-size: 13px;
+    }
+    
+    .libro-categoria {
+      font-size: 11px;
+    }
+  }
+  
   @media (max-width: 600px) {
     .libro-img {
       height: 180px;
@@ -56,10 +82,55 @@
     .libro-img img.cover-img {
       object-position: 50% 10%;
     }
+    
+    .libro-info {
+      padding: 10px;
+      gap: 4px;
+    }
+    
+    .libro-titulo {
+      font-size: 14px;
+    }
+    
+    .btn-small {
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+    
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .libro-img {
+      height: 160px;
+    }
+    
+    .libro-acciones {
+      gap: 8px;
+      margin-top: 6px;
+    }
+    
+    .btns-vertical {
+      gap: 4px;
+    }
+    
+    .btn-small {
+      font-size: 11px;
+      padding: 5px 6px;
+    }
+    
+    .btn-small .icon {
+      width: 14px;
+      height: 14px;
+    }
   }
 
 .libro-titulo {
-  color: var(--c-primary);
+  color: var(--c-dark);
   font-weight: 800;
   font-size: 16px;
 }
@@ -98,10 +169,18 @@
   font-weight: 800;
   cursor: pointer;
   transition: background 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-small:hover {
   background: var(--c-dark);
+}
+
+.btn-small .icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* Corazón */
