@@ -10,11 +10,17 @@
         <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" />
       </div>
       <div class="avatar__actions">
-        <label class="btn-secondary">
+        <label class="btn btn-secondary">
           Subir Foto
           <input type="file" accept="image/*" hidden @change="cargarAvatar" />
         </label>
-        <button class="link-danger" @click="quitarAvatar">Quitar</button>
+        <button 
+          v-if="avatarUrl" 
+          class="btn btn-danger" 
+          @click="quitarAvatar"
+        >
+          Quitar
+        </button>
       </div>
     </div>
   </div>  
@@ -44,153 +50,180 @@
 </section>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from "vue"
-
-// Estado del perfil
-const perfil = ref({
-  nombre: "",
-  apellido: "",
-  nickname: ""
-})
-
-const avatarUrl = ref(null)
-const hasSavedProfile = ref(false)
-const avatarFile = ref(null)
-
-onMounted(() => {
-  try {
-    const stored = JSON.parse(localStorage.getItem('user')) || {}
-    if (stored.nombre) perfil.value.nombre = stored.nombre
-    if (stored.apellido) perfil.value.apellido = stored.apellido
-    if (stored.nickname) perfil.value.nickname = stored.nickname
-    if (stored.avatarUrl) avatarUrl.value = stored.avatarUrl
-    hasSavedProfile.value = Boolean(stored.nombre || stored.apellido || stored.nickname)
-  } catch (e) {
-    // ignore
-  }
-})
-
-const buttonLabel = computed(() => hasSavedProfile.value ? 'Editar Perfil' : 'Confirmar')
-
-// Métodos
-function cargarAvatar(e) {
-  const file = e.target.files[0]
-  if (file) {
-    avatarFile.value = file
-    avatarUrl.value = URL.createObjectURL(file)
-  }
-}
-
-function quitarAvatar() {
-  avatarUrl.value = null
-  avatarFile.value = null
-  // If user is logged in, request server to remove stored avatar
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  if (!user || !user.email) return;
-  (async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:3000/api/users/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
-        },
-        body: JSON.stringify({ email: user.email, removeAvatar: true })
-      });
-      if (res.ok) {
-        const updated = await res.json().catch(() => ({}));
-        const newUser = { ...user };
-        delete newUser.avatarUrl;
-        localStorage.setItem('user', JSON.stringify(newUser));
-        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Avatar eliminado', type: 'success', duration: 2000 } }));
+<script>
+export default {
+  name: "EditarPerfil",
+  data() {
+    return {
+      // Estado del perfil
+      perfil: {
+        nombre: "",
+        apellido: "",
+        nickname: ""
+      },
+      avatarUrl: null,
+      hasSavedProfile: false,
+      avatarFile: null
+    };
+  },
+  computed: {
+    buttonLabel() {
+      return this.hasSavedProfile ? 'Editar Perfil' : 'Confirmar';
+    }
+  },
+  methods: {
+    cargarAvatar(e) {
+      const file = e.target.files[0]
+      if (file) {
+        this.avatarFile = file
+        this.avatarUrl = URL.createObjectURL(file)
       }
+    },
+    async quitarAvatar() {
+      // Limpiar avatar localmente primero
+      this.avatarUrl = null;
+      this.avatarFile = null;
+      
+      // Actualizar localStorage inmediatamente
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (user && user.email) {
+        const updatedUser = { ...user };
+        delete updatedUser.avatarUrl;
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        // Sincronizar con servidor
+        try {
+          const token = localStorage.getItem('token');
+          const res = await fetch('http://localhost:3000/api/users/update', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            },
+            body: JSON.stringify({ email: user.email, removeAvatar: true })
+          });
+          
+          if (res.ok) {
+            window.dispatchEvent(new CustomEvent('app:toast', { 
+              detail: { 
+                message: 'Avatar eliminado correctamente', 
+                type: 'success', 
+                duration: 2000 
+              } 
+            }));
+          } else {
+            window.dispatchEvent(new CustomEvent('app:toast', { 
+              detail: { 
+                message: 'Avatar eliminado localmente (error de sincronización)', 
+                type: 'info', 
+                duration: 3000 
+              } 
+            }));
+          }
+        } catch (error) {
+          window.dispatchEvent(new CustomEvent('app:toast', { 
+            detail: { 
+              message: 'Avatar eliminado localmente (sin conexión)', 
+              type: 'info', 
+              duration: 3000 
+            } 
+          }));
+        }
+      }
+    },
+    async guardarPerfil() {
+      // Validaciones cliente antes de enviar (coincidir con reglas esperadas en backend)
+      const nombreVal = String(this.perfil.nombre || '').trim();
+      const apellidoVal = String(this.perfil.apellido || '').trim();
+      const nickVal = String(this.perfil.nickname || '').trim();
+      const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,40}$/u;
+      if (!nameRe.test(nombreVal)) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Nombre inválido. Usa letras y espacios (mín. 2 caracteres).', type: 'error', duration: 3500 } }));
+        return;
+      }
+      if (!nameRe.test(apellidoVal)) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Apellido inválido. Usa letras y espacios (mín. 2 caracteres).', type: 'error', duration: 3500 } }));
+        return;
+      }
+      const nickRe = /^[A-Za-z0-9_]{3,8}$/;
+      if (!nickRe.test(nickVal)) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Nickname inválido. Solo letras, números y _ (3-8 caracteres).', type: 'error', duration: 3500 } }));
+        return;
+      }
+      // Obtener usuario logueado
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user.email) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'No hay sesión activa.', type: 'info', duration: 3000 } }));
+        return;
+      }
+      // Preparar datos
+      const datos = {
+        email: user.email,
+        nombre: this.perfil.nombre,
+        apellido: this.perfil.apellido,
+        nickname: this.perfil.nickname
+      };
+      try {
+        const token = localStorage.getItem('token');
+        let res;
+        if (this.avatarFile) {
+          const form = new FormData();
+          form.append('avatar', this.avatarFile);
+          form.append('email', user.email);
+          form.append('nombre', this.perfil.nombre);
+          form.append('apellido', this.perfil.apellido);
+          form.append('nickname', this.perfil.nickname);
+          res = await fetch('http://localhost:3000/api/users/update', {
+            method: 'PUT',
+            headers: {
+              ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            },
+            body: form
+          });
+        } else {
+          res = await fetch('http://localhost:3000/api/users/update', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            },
+            body: JSON.stringify(datos)
+          });
+        }
+        const data = await res.json();
+        if (res.ok) {
+          window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Perfil actualizado correctamente', type: 'success', duration: 3000 } }));
+          // Actualizar user en localStorage
+          // server returns updated user; merge into localStorage if present
+          const returned = data || {};
+          const backendBase = 'http://localhost:3000';
+          const merged = { ...user, ...datos, ...(returned || {}) };
+          // if server returns a relative avatarUrl like '/uploads/xxx', prefix backend host
+          if (merged.avatarUrl && !String(merged.avatarUrl).startsWith('http')) {
+            merged.avatarUrl = `${backendBase}${merged.avatarUrl}`;
+          }
+          localStorage.setItem('user', JSON.stringify(merged));
+          if (merged.avatarUrl) this.avatarUrl = merged.avatarUrl;
+          this.hasSavedProfile = true
+        } else {
+          window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: data.message || 'Error al actualizar perfil', type: 'error', duration: 3500 } }));
+        }
+      } catch (e) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Error de conexión con el servidor', type: 'error', duration: 3500 } }));
+      }
+    }
+  },
+  mounted() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('user')) || {}
+      if (stored.nombre) this.perfil.nombre = stored.nombre
+      if (stored.apellido) this.perfil.apellido = stored.apellido
+      if (stored.nickname) this.perfil.nickname = stored.nickname
+      if (stored.avatarUrl) this.avatarUrl = stored.avatarUrl
+      this.hasSavedProfile = Boolean(stored.nombre || stored.apellido || stored.nickname)
     } catch (e) {
       // ignore
     }
-  })();
-}
-
-async function guardarPerfil() {
-  // Validaciones cliente antes de enviar (coincidir con reglas esperadas en backend)
-  const nombreVal = String(perfil.value.nombre || '').trim();
-  const apellidoVal = String(perfil.value.apellido || '').trim();
-  const nickVal = String(perfil.value.nickname || '').trim();
-  const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,40}$/u;
-  if (!nameRe.test(nombreVal)) {
-    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Nombre inválido. Usa letras y espacios (mín. 2 caracteres).', type: 'error', duration: 3500 } }));
-    return;
-  }
-  if (!nameRe.test(apellidoVal)) {
-    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Apellido inválido. Usa letras y espacios (mín. 2 caracteres).', type: 'error', duration: 3500 } }));
-    return;
-  }
-  const nickRe = /^[A-Za-z0-9_]{3,20}$/;
-  if (!nickRe.test(nickVal)) {
-    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Nickname inválido. Solo letras, números y _ (3-20 caracteres).', type: 'error', duration: 3500 } }));
-    return;
-  }
-  // Obtener usuario logueado
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (!user || !user.email) {
-    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'No hay sesión activa.', type: 'info', duration: 3000 } }));
-    return;
-  }
-  // Preparar datos
-  const datos = {
-    email: user.email,
-    nombre: perfil.value.nombre,
-    apellido: perfil.value.apellido,
-    nickname: perfil.value.nickname
-  };
-  try {
-    const token = localStorage.getItem('token');
-    let res;
-    if (avatarFile.value) {
-      const form = new FormData();
-      form.append('avatar', avatarFile.value);
-      form.append('email', user.email);
-      form.append('nombre', perfil.value.nombre);
-      form.append('apellido', perfil.value.apellido);
-      form.append('nickname', perfil.value.nickname);
-      res = await fetch('http://localhost:3000/api/users/update', {
-        method: 'PUT',
-        headers: {
-          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
-        },
-        body: form
-      });
-    } else {
-      res = await fetch('http://localhost:3000/api/users/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
-        },
-        body: JSON.stringify(datos)
-      });
-    }
-    const data = await res.json();
-    if (res.ok) {
-      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Perfil actualizado correctamente', type: 'success', duration: 3000 } }));
-      // Actualizar user en localStorage
-      // server returns updated user; merge into localStorage if present
-      const returned = data || {};
-      const backendBase = 'http://localhost:3000';
-      const merged = { ...user, ...datos, ...(returned || {}) };
-      // if server returns a relative avatarUrl like '/uploads/xxx', prefix backend host
-      if (merged.avatarUrl && !String(merged.avatarUrl).startsWith('http')) {
-        merged.avatarUrl = `${backendBase}${merged.avatarUrl}`;
-      }
-      localStorage.setItem('user', JSON.stringify(merged));
-      if (merged.avatarUrl) avatarUrl.value = merged.avatarUrl;
-      hasSavedProfile.value = true
-    } else {
-      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: data.message || 'Error al actualizar perfil', type: 'error', duration: 3500 } }));
-    }
-  } catch (e) {
-    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Error de conexión con el servidor', type: 'error', duration: 3500 } }));
   }
 }
 </script>
