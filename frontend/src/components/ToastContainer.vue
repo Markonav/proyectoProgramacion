@@ -8,26 +8,32 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-
-const toasts = ref([])
-let idCounter = 1
-function showToast(message, type = 'info', duration = 3000) {
-  const id = idCounter++
-  toasts.value.push({ id, message, type })
-  setTimeout(() => {
-    const idx = toasts.value.findIndex(t => t.id === id)
-    if (idx !== -1) toasts.value.splice(idx, 1)
-  }, duration)
+<script>
+export default {
+  name: "ToastContainer",
+  data() {
+    return {
+      toasts: [],
+      idCounter: 1
+    };
+  },
+  methods: {
+    showToast(message, type = 'info', duration = 3000) {
+      const id = this.idCounter++
+      this.toasts.push({ id, message, type })
+      setTimeout(() => {
+        const idx = this.toasts.findIndex(t => t.id === id)
+        if (idx !== -1) this.toasts.splice(idx, 1)
+      }, duration)
+    }
+  },
+  mounted() {
+    window.addEventListener('app:toast', (e) => {
+      const detail = e.detail || {}
+      this.showToast(detail.message || '', detail.type || 'info', detail.duration || 3000)
+    })
+  }
 }
-
-onMounted(() => {
-  window.addEventListener('app:toast', (e) => {
-    const detail = e.detail || {}
-    showToast(detail.message || '', detail.type || 'info', detail.duration || 3000)
-  })
-})
 </script>
 
 <style scoped>
