@@ -12,23 +12,37 @@ import Categorias from '@/views/Categorias.vue'
 import Tendencia from '@/views/Tendencia.vue'
 import MásLeídos from '@/views/MásLeídos.vue'
 import LibroDetalle from '@/views/LibroDetalle.vue'
+import Search from '@/views/Search.vue'
 
+
+// Función para verificar si el usuario tiene sesión activa
+function isAuthenticated() {
+  const user = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
+  return !!(user && token);
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: '/menu' },
     { path: '/menu', component: Menu },
-    { path: '/catalogo', component: Catalogo },
+    { path: '/catalogo', name: 'Catalogo', component: Catalogo },
     { path: '/tendencias', component: Tendencia },
     { path: '/categorias', component: Categorias },
     { path: '/libro/:id', name: 'LibroDetalle', component: LibroDetalle },
+    { path: '/search', name: 'Search', component: Search },
     { path: '/login', component: Login },
-    { path: '/agregarLibro', component: AgregarLibro },
+    { 
+      path: '/agregarLibro', 
+      component: AgregarLibro,
+      meta: { requiresAuth: true }
+    },
     { path: '/másLeídos', component: MásLeídos },
     {
       path: '/cuenta',
       component: Cuenta,
+      meta: { requiresAuth: true },
       children: [
         { path: '', redirect: 'editar' },
         { path: 'editar', component: EditarPerfil },
@@ -38,5 +52,20 @@ const router = createRouter({
     }
   ]
 })
+
+// Navigation guard global - verifica autenticación antes de cada ruta
+router.beforeEach((to, from, next) => {
+  // Si la ruta requiere autenticación
+  if (to.meta.requiresAuth) {
+    if (isAuthenticated()) {
+      next(); // Usuario autenticado, permitir acceso
+    } else {
+      // Usuario no autenticado, redirigir al login
+      next('/login');
+    }
+  } else {
+    next(); // Ruta no requiere autenticación, permitir acceso
+  }
+});
 
 export default router
