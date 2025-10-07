@@ -56,6 +56,7 @@ const perfil = ref({
 
 const avatarUrl = ref(null)
 const hasSavedProfile = ref(false)
+const avatarFile = ref(null)
 
 onMounted(() => {
   try {
@@ -76,19 +77,64 @@ const buttonLabel = computed(() => hasSavedProfile.value ? 'Editar Perfil' : 'Co
 function cargarAvatar(e) {
   const file = e.target.files[0]
   if (file) {
+    avatarFile.value = file
     avatarUrl.value = URL.createObjectURL(file)
   }
 }
 
 function quitarAvatar() {
   avatarUrl.value = null
+  avatarFile.value = null
+  // If user is logged in, request server to remove stored avatar
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!user || !user.email) return;
+  (async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:3000/api/users/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        body: JSON.stringify({ email: user.email, removeAvatar: true })
+      });
+      if (res.ok) {
+        const updated = await res.json().catch(() => ({}));
+        const newUser = { ...user };
+        delete newUser.avatarUrl;
+        localStorage.setItem('user', JSON.stringify(newUser));
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Avatar eliminado', type: 'success', duration: 2000 } }));
+      }
+    } catch (e) {
+      // ignore
+    }
+  })();
 }
 
 async function guardarPerfil() {
+  // Validaciones cliente antes de enviar (coincidir con reglas esperadas en backend)
+  const nombreVal = String(perfil.value.nombre || '').trim();
+  const apellidoVal = String(perfil.value.apellido || '').trim();
+  const nickVal = String(perfil.value.nickname || '').trim();
+  const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]{2,40}$/u;
+  if (!nameRe.test(nombreVal)) {
+    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Nombre inválido. Usa letras y espacios (mín. 2 caracteres).', type: 'error', duration: 3500 } }));
+    return;
+  }
+  if (!nameRe.test(apellidoVal)) {
+    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Apellido inválido. Usa letras y espacios (mín. 2 caracteres).', type: 'error', duration: 3500 } }));
+    return;
+  }
+  const nickRe = /^[A-Za-z0-9_]{3,20}$/;
+  if (!nickRe.test(nickVal)) {
+    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Nickname inválido. Solo letras, números y _ (3-20 caracteres).', type: 'error', duration: 3500 } }));
+    return;
+  }
   // Obtener usuario logueado
   const user = JSON.parse(localStorage.getItem('user'));
   if (!user || !user.email) {
-    alert('No hay sesión activa.');
+    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'No hay sesión activa.', type: 'info', duration: 3000 } }));
     return;
   }
   // Preparar datos
@@ -100,25 +146,51 @@ async function guardarPerfil() {
   };
   try {
     const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:3000/api/users/update', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
-      },
-      body: JSON.stringify(datos)
-    });
+    let res;
+    if (avatarFile.value) {
+      const form = new FormData();
+      form.append('avatar', avatarFile.value);
+      form.append('email', user.email);
+      form.append('nombre', perfil.value.nombre);
+      form.append('apellido', perfil.value.apellido);
+      form.append('nickname', perfil.value.nickname);
+      res = await fetch('http://localhost:3000/api/users/update', {
+        method: 'PUT',
+        headers: {
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        body: form
+      });
+    } else {
+      res = await fetch('http://localhost:3000/api/users/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        body: JSON.stringify(datos)
+      });
+    }
     const data = await res.json();
     if (res.ok) {
-      alert('Perfil actualizado correctamente');
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Perfil actualizado correctamente', type: 'success', duration: 3000 } }));
       // Actualizar user en localStorage
-      localStorage.setItem('user', JSON.stringify({ ...user, ...datos }));
+      // server returns updated user; merge into localStorage if present
+      const returned = data || {};
+      const backendBase = 'http://localhost:3000';
+      const merged = { ...user, ...datos, ...(returned || {}) };
+      // if server returns a relative avatarUrl like '/uploads/xxx', prefix backend host
+      if (merged.avatarUrl && !String(merged.avatarUrl).startsWith('http')) {
+        merged.avatarUrl = `${backendBase}${merged.avatarUrl}`;
+      }
+      localStorage.setItem('user', JSON.stringify(merged));
+      if (merged.avatarUrl) avatarUrl.value = merged.avatarUrl;
       hasSavedProfile.value = true
     } else {
-      alert(data.message || 'Error al actualizar perfil');
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: data.message || 'Error al actualizar perfil', type: 'error', duration: 3500 } }));
     }
   } catch (e) {
-    alert('Error de conexión con el servidor');
+    window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Error de conexión con el servidor', type: 'error', duration: 3500 } }));
   }
 }
 </script>

@@ -27,6 +27,7 @@
               <td>{{ libro.PrecioRenta }}</td>
               <td>
                 <button class="btn-small" @click="editar(libro)">Editar</button>
+                <button class="btn-delete" @click.prevent="confirmEliminar(libro)" aria-label="Eliminar libro" title="Eliminar libro">×</button>
               </td>
             </tr>
           </tbody>
@@ -79,16 +80,25 @@
       </div>
     </main>
     <Footer />
+    <ConfirmModal
+      :visible="showConfirm"
+      title="Eliminar libro"
+      :message="pendingDelete ? `¿Estás seguro de eliminar el libro <strong>${pendingDelete.titulo}</strong>?` : '¿Estás seguro?'
+      "
+      @confirm="eliminarConfirmado"
+      @cancel="cancelarEliminar"
+    />
   </div>
 </template>
 
 <script>
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 export default {
   name: 'AgregarLibro',
-  components: { Header, Footer },
+  components: { Header, Footer, ConfirmModal },
   data() {
     return {
       libros: [],
@@ -107,7 +117,10 @@ export default {
       modoEdicion: false,
       editingId: null,
       mensaje: '',
-      mensajeTipo: ''
+      mensajeTipo: '',
+      // confirm modal state
+      showConfirm: false,
+      pendingDelete: null
     }
   },
   methods: {
@@ -234,6 +247,33 @@ export default {
       this.coverFile = null;
       if (this.$refs.coverInput) this.$refs.coverInput.value = null;
     }
+,
+    confirmEliminar(libro) {
+      this.pendingDelete = libro;
+      this.showConfirm = true;
+    },
+    async eliminarConfirmado() {
+      const libro = this.pendingDelete;
+      this.showConfirm = false;
+      this.pendingDelete = null;
+      if (!libro) return;
+      try {
+        const res = await fetch(`http://localhost:3000/api/libros/${libro.id}`, { method: 'DELETE' });
+        if (res.status === 204 || res.ok) {
+          window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Libro eliminado', type: 'success', duration: 1800 } }));
+          this.fetchLibros();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: data.message || 'No se pudo eliminar el libro', type: 'error', duration: 2800 } }));
+        }
+      } catch (e) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Error de conexión al eliminar', type: 'error', duration: 2800 } }));
+      }
+    },
+    cancelarEliminar() {
+      this.showConfirm = false;
+      this.pendingDelete = null;
+    }
   },
   mounted() {
     this.fetchLibros();
@@ -243,3 +283,23 @@ export default {
 </script>
 
 <style src="@/assets/styles/agregarLibro.css"></style>
+
+<style scoped>
+.btn-delete {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+.btn-delete:hover { opacity: 0.9 }
+</style>

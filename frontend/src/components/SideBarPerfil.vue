@@ -24,7 +24,12 @@ function cerrarSesion() {
   // Borrar token y datos de usuario
   localStorage.removeItem('token')
   localStorage.removeItem('user')
-  alert("Sesión cerrada 🚪")
+  // Limpiar carrito al cerrar sesión
+  localStorage.removeItem('cart')
+  // Notificar a la app con un toast en lugar de alert
+  window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Sesión cerrada', type: 'info', duration: 1800 } }));
+  // Notificar a vistas que dependan de cart/favs
+  window.dispatchEvent(new CustomEvent('favs:changed'))
   router.push("/login")
 }
 </script>

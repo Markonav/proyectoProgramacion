@@ -1,4 +1,5 @@
 const { registrarUsuario, loginUsuario, actualizarUsuario } = require('../services/userService');
+const { obtenerFavoritos, actualizarFavoritos } = require('../services/userService');
 const jwt = require('jsonwebtoken');
 const { cambiarContrasena } = require('../services/userService');
 
@@ -36,11 +37,19 @@ async function postLogin(req, res) {
 // Actualizar datos de usuario (nombre, apellido, nickname)
 async function putUpdateUser(req, res) {
   try {
-    const { email, nombre, apellido, nickname } = req.body;
+    // puede llegar un archivo multipart (avatar) o JSON
+    console.log('[putUpdateUser] incoming req.file:', req.file);
+    console.log('[putUpdateUser] incoming req.body keys:', Object.keys(req.body));
+    const { email, nombre, apellido, nickname, removeAvatar } = req.body;
     if (!email) {
       return res.status(400).json({ message: 'Email requerido' });
     }
-    const user = await actualizarUsuario({ email, nombre, apellido, nickname });
+    // si multer guardó un archivo, construir la ruta relativa a /uploads
+    let avatarUrl = undefined;
+    if (req.file && req.file.filename) {
+      avatarUrl = `/uploads/${req.file.filename}`;
+    }
+    const user = await actualizarUsuario({ email, nombre, apellido, nickname, avatarUrl, removeAvatar });
     res.json(user);
   } catch (e) {
     console.error('[putUpdateUser]', e);
@@ -59,5 +68,31 @@ async function putChangePassword(req, res) {
   }
 }
 
-module.exports = { postRegister, postLogin, putUpdateUser, putChangePassword };
+// Obtener favoritos del usuario
+async function getUserFavs(req, res) {
+  try {
+    const email = req.query.email;
+    if (!email) return res.status(400).json({ message: 'Email requerido' });
+    const favs = await obtenerFavoritos(email);
+    res.json({ favs });
+  } catch (e) {
+    console.error('[getUserFavs]', e);
+    res.status(e.status || 400).json({ message: e.message || 'Error obteniendo favoritos' });
+  }
+}
+
+// Actualizar favoritos del usuario (body: { email, favs: { id: true } })
+async function putUserFavs(req, res) {
+  try {
+    const { email, favs } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email requerido' });
+    const updated = await actualizarFavoritos(email, favs || {});
+    res.json({ favs: updated });
+  } catch (e) {
+    console.error('[putUserFavs]', e);
+    res.status(e.status || 400).json({ message: e.message || 'Error actualizando favoritos' });
+  }
+}
+
+module.exports = { postRegister, postLogin, putUpdateUser, putChangePassword, getUserFavs, putUserFavs };
 

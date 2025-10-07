@@ -67,7 +67,9 @@ export default {
         const data = await res.json();
         // Aseguramos estructura mínima
         const backendBase = 'http://localhost:3000';
-        this.libros = data.map((b, idx) => ({
+        // una vez traídos los libros, aplicar favoritos guardados en localStorage (o los traídos desde servidor)
+        const favs = JSON.parse(localStorage.getItem('favs') || '{}');
+        this.books = data.map((b, idx) => ({
           id: b.id ?? idx,
           title: b.titulo ?? "Sin título",
           author: b.autor ?? "Autor desconocido",
@@ -76,7 +78,7 @@ export default {
           // el backend guarda la ruta en `cover` (ej: /uploads/xxx.png)
           // convertimos rutas relativas como '/uploads/xxx' a URL absoluta apuntando al backend
           image: b.cover ? (String(b.cover).startsWith('http') ? b.cover : `${backendBase}${b.cover}`) : null,
-          favorite: !!b.favorite
+          favorite: !!favs[(b.id ?? idx)]
         }));
       } catch (err) {
         this.libros = []; // Si hay error, deja la lista vacía
@@ -89,16 +91,52 @@ export default {
       console.log("Agregar al carrito:", book);
       // Ejemplo simple: guardar en localStorage
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      // si ya existe un item con el mismo id, no agregar
+      const exists = cart.some(item => item.id === book.id);
+      if (exists) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'El libro ya está en el carrito', type: 'info', duration: 2200 } }));
+        return;
+      }
       cart.push({ ...book, qty: 1 });
       localStorage.setItem("cart", JSON.stringify(cart));
-      alert("Libro agregado al carrito");
+      // Mostrar notificación visual en esquina inferior derecha
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Libro agregado al carrito', type: 'success', duration: 2500 } }));
     },
-    toggleFavorite(book) {
+    async toggleFavorite(book) {
+      // Solo usuarios logueados pueden marcar favoritos
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (!user || !user.email) {
+        window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Inicia sesión para usar favoritos', type: 'info', duration: 2800 } }));
+        this.$router.push('/login');
+        return;
+      }
       book.favorite = !book.favorite;
-      // opcional: persistir en localStorage o llamar a backend
+      // Persistir en localStorage (client-side)
       const favs = JSON.parse(localStorage.getItem("favs") || "{}");
       favs[book.id] = book.favorite;
       localStorage.setItem("favs", JSON.stringify(favs));
+      // Notificar a otras vistas que los favoritos cambiaron
+      window.dispatchEvent(new CustomEvent('favs:changed', { detail: { id: book.id, favorite: book.favorite } }));
+      const msg = book.favorite ? 'Agregado a favoritos' : 'Eliminado de favoritos';
+      window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: msg, type: 'success', duration: 2000 } }));
+
+      // Si el usuario está logueado, persistir en backend
+      if (user && user.email) {
+        try {
+          const token = user.token || null;
+          await fetch('http://localhost:3000/api/users/favs', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ email: user.email, favs })
+          });
+          // opcional: podríamos verificar res.ok y mostrar error si no se pudo persistir
+        } catch (err) {
+          window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'No se pudo sincronizar favoritos con el servidor', type: 'error', duration: 3000 } }));
+        }
+      }
     },
     onSearch(term) {
       this.searchTerm = term;
@@ -108,11 +146,33 @@ export default {
     }
   },
   mounted() {
-    this.fetchBooks();
-    // cargar favoritos guardados en localStorage (si aplica)
-    const favs = JSON.parse(localStorage.getItem("favs") || "{}");
-    // si ya llegaron libros desde backend, aplicar en fetchBooks; si no, cuando se carguen, puedes reconciliar
-    // aquí dejamos simple: cuando fetchBooks asigna books, favorite ya fue seteado según data o default false
+    // Si hay un usuario logueado, primero sincronizamos favoritos desde el backend
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const loadServerFavs = async () => {
+      if (!user || !user.email) return;
+      try {
+        const token = user.token || null;
+        const res = await fetch(`http://localhost:3000/api/users/favs?email=${encodeURIComponent(user.email)}`, {
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          }
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const serverFavs = json.favs || {};
+        localStorage.setItem('favs', JSON.stringify(serverFavs));
+      } catch (e) {
+        // ignore - keep local favs
+      }
+    };
+
+    loadServerFavs().then(() => this.fetchBooks());
+    // escuchar cambios de favoritos para recargar UI si vienen de otra vista
+    window.addEventListener('favs:changed', () => {
+      // actualizar flags en memoria
+      const favs = JSON.parse(localStorage.getItem('favs') || '{}');
+      this.books = this.books.map(b => ({ ...b, favorite: !!favs[b.id] }));
+    });
   }
 };
 </script>

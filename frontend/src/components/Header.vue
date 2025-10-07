@@ -14,12 +14,13 @@
       <a href="#" @click.prevent="abrirCarrito">Carrito</a>
       <a href="#" @click.prevent="irAEditarPerfil">{{ nombreUsuario }}</a>
     </div>
-    <CartSidebar :visible="showCart" @close="showCart = false" />
+    <!-- No mostrar el sidebar en páginas de autenticación -->
+    <CartSidebar v-if="!isAuthRoute" :visible="showCart" @close="showCart = false" />
   </header>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import CartSidebar from './CartSidebar.vue';
 
@@ -29,9 +30,14 @@ export default {
   setup() {
     const router = useRouter();
     const showCart = ref(false);
+  // solo bloquear en la ruta de login
+  const authPaths = ['/login'];
     function abrirCarrito() {
+      if (isAuthRoute.value) return; // no abrir en la página de login
       showCart.value = true;
     }
+    // computed para que la plantilla reaccione si cambia la ruta
+    const isAuthRoute = computed(() => authPaths.includes(router.currentRoute.value?.path || ''));
     function irAEditarPerfil() {
       const user = JSON.parse(localStorage.getItem('user'));
       if (!user || !user.email) {
@@ -40,18 +46,21 @@ export default {
         router.push('/cuenta/editar');
       }
     }
-    // Obtener usuario de localStorage: preferir `nombre` si existe, sino usar prefijo del email
+    // Obtener usuario de localStorage: preferir `nickname`, luego `nombre`, luego prefijo del email
     let nombreUsuario = 'Mi Cuenta';
     try {
       const user = JSON.parse(localStorage.getItem('user')) || {};
+      const nick = (user.nickname || '').toString().trim();
       const nombre = (user.nombre || '').toString().trim();
-      if (nombre) {
+      if (nick) {
+        nombreUsuario = nick;
+      } else if (nombre) {
         nombreUsuario = nombre;
       } else if (user.email) {
         nombreUsuario = user.email.split('@')[0];
       }
     } catch {}
-    return { irAEditarPerfil, nombreUsuario, showCart, abrirCarrito };
+    return { irAEditarPerfil, nombreUsuario, showCart, abrirCarrito, isAuthRoute };
   }
 }
 </script>
