@@ -113,7 +113,6 @@
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user || !user.email) {
                 window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Inicia sesión para usar favoritos', type: 'info', duration: 2800 } }));
-                this.$router.push('/login');
                 return;
             }
             book.favorite = !book.favorite;

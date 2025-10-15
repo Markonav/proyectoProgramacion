@@ -1,7 +1,10 @@
 
 <template>
   <section :class="['perfil__content', { 'perfil--empty': favoritos.length === 0 }]">
-    <div v-if="favoritos.length === 0" class="favoritos-empty">
+
+    <LoadingSpinner v-if="loading">Cargando libros...</LoadingSpinner>
+
+    <div v-else-if="favoritos.length === 0" class="favoritos-empty">
       <div class="empty-heart">♥</div>
       <div class="empty-msg">¡Aún no tienes favoritos!<br><span>Cuando agregues libros aquí, aparecerán tus lecturas preferidas.</span></div>
     </div>
@@ -22,18 +25,21 @@
 
 <script>
 import BookCard from '@/components/BookCard.vue';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 export default {
   name: 'Favoritos',
-  components: { BookCard },
+  components: { BookCard, LoadingSpinner },
   data() {
     return {
-      favoritos: []
+      favoritos: [],
+      loading: true
     }
   },
   methods: {
     async cargarFavoritos() {
       // Traer todos los libros del backend y filtrar por favorites guardados en localStorage
+      this.loading = true;
       try {
         const res = await fetch('http://localhost:3000/api/libros');
         if (!res.ok) throw new Error('No response');
@@ -54,6 +60,8 @@ export default {
         const favs = JSON.parse(localStorage.getItem('favs') || '{}');
         const books = JSON.parse(localStorage.getItem('books') || '[]');
         this.favoritos = books.filter(b => favs[b.id]);
+      } finally {
+        this.loading = false;
       }
     },
     async quitarDeFavoritos(book) {

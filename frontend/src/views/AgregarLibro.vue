@@ -7,31 +7,33 @@
       <div v-else-if="error" class="state error">No se pudo cargar la lista. Intenta nuevamente.</div>
       <div v-else-if="libros.length === 0" class="state empty">No hay libros aún. Presiona “Agregar Libro”.</div>
       <div v-else class="tabla-container">
-        <table style="width:100%;">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Título</th>
-              <th>Autor</th>
-              <th>Categoría</th>
-              <th>Precio Renta</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="libro in libros" :key="libro.id">
-              <td>{{ libro.id }}</td>
-              <td>{{ libro.titulo }}</td>
-              <td>{{ libro.autor }}</td>
-              <td>{{ libro.categoria }}</td>
-              <td>{{ libro.PrecioRenta }}</td>
-              <td>
-                <button class="btn-small" @click="editar(libro)">Editar</button>
-                <button class="btn-delete" @click.prevent="confirmEliminar(libro)" aria-label="Eliminar libro" title="Eliminar libro">×</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="tabla-scroll">
+          <table style="width:100%;">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Categoría</th>
+                <th>Precio Renta</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="libro in libros" :key="libro.id">
+                <td>{{ libro.id }}</td>
+                <td>{{ libro.titulo }}</td>
+                <td>{{ libro.autor }}</td>
+                <td>{{ libro.categoria }}</td>
+                <td>{{ libro.PrecioRenta }}</td>
+                <td>
+                  <button class="btn-small" @click="editar(libro)">Editar</button>
+                  <button class="btn-delete" @click.prevent="confirmEliminar(libro)" aria-label="Eliminar libro" title="Eliminar libro">×</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Botón para mostrar el formulario -->

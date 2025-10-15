@@ -56,7 +56,7 @@
                     const backendBase = 'http://localhost:3000';
                     const favs = JSON.parse(localStorage.getItem('favs') || '{}');
                     this.libros = data
-                        .filter(b => b.tendencia === true) // Solo libros en tendencia
+                        .filter(b => Number(b.tendencia) === 1) // Solo libros en tendencia (soporta 0/1)
                         .map((b, idx) => ({
                             id: b.id ?? idx,
                             title: b.titulo ?? "Sin título",
@@ -87,7 +87,6 @@
                 const user = JSON.parse(localStorage.getItem('user') || 'null');
                 if (!user || !user.email) {
                     window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Inicia sesión para usar favoritos', type: 'info', duration: 2800 } }));
-                    this.$router.push('/login');
                     return;
                 }
                 book.favorite = !book.favorite;
