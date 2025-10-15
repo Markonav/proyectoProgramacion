@@ -23,6 +23,18 @@ h2{
   max-width:1000px; 
   border:1px solid #e9e3d9; 
 }
+
+.tabla-scroll{ 
+  max-height:600px; 
+  overflow-y:auto; 
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2; 
+}
+
 table{ 
   width:100%; 
   border-collapse:collapse; 
