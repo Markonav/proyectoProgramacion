@@ -1,6 +1,6 @@
 
 const { agregarLibro, listarLibros, eliminarLibro, editarLibro } = require('../services/libroService');
-const { leerCategorias } = require('../data/categorias');
+const { leerCategorias } = require('../data/categoriasData');
 
 function addLibro(req, res) {
   try {
@@ -14,12 +14,6 @@ function addLibro(req, res) {
       return res.status(400).json({ message: 'PrecioRenta debe ser un n\u00famero no negativo' });
     }
 
-    let nuevoId = Date.now();
-    const existentes = listarLibros();
-    while (existentes.some(l => Number(l.id) === nuevoId)) {
-      nuevoId++;
-    }
-
     // si viene archivo multer lo coloca en req.file
     let coverPath = null;
     if (req.file && req.file.filename) {
@@ -30,8 +24,8 @@ function addLibro(req, res) {
       coverPath = `/uploads/default.svg`;
     }
 
+    // No asignamos 'id' aquí: la base de datos (AUTOINCREMENT) generará la PK
     const nuevoLibro = {
-      id: nuevoId,
       titulo: String(titulo).trim(),
       autor: String(autor).trim(),
       categoria: categoria,
@@ -40,8 +34,20 @@ function addLibro(req, res) {
       cover: coverPath
     };
 
-    const creado = agregarLibro(nuevoLibro);
-    return res.status(201).json({ message: 'Libro agregado', libro: creado });
+    try {
+      const creado = agregarLibro(nuevoLibro);
+      return res.status(201).json({ message: 'Libro agregado', libro: creado });
+    } catch (err) {
+      // errores esperados desde la capa de servicio
+      if (err && err.code === 'DUP_TITLE') {
+        return res.status(409).json({ message: err.message || 'Título duplicado' });
+      }
+      if (err && err.code === 'INVALID') {
+        return res.status(400).json({ message: err.message || 'Datos inválidos' });
+      }
+      console.error('[addLibro] error:', err && err.stack ? err.stack : err);
+      return res.status(500).json({ message: 'Error al agregar libro' });
+    }
 
   } catch (err) {
     console.error(err);

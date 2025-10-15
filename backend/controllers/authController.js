@@ -1,30 +1,28 @@
-const jwt = require("jsonwebtoken");
-const fs = require("fs");
-const path = require("path");
+const jwt = require('jsonwebtoken');
+const { loginUsuario } = require('../services/userService');
 
-const SECRET_KEY = "mi_clave_super_secreta"; // ⚠️ en producción usa process.env
-
-const usersFile = path.join(__dirname, "../data/users.json");
+// Use env JWT secret when available
+const SECRET_KEY = process.env.JWT_SECRET || 'mi_clave_super_secreta';
 
 // 🔑 LOGIN
-function login(req, res) {
-  const { email, password } = req.body;
+async function login(req, res) {
+  try {
+    // loginUsuario validará credenciales (bcrypt) y devolverá el usuario safe
+    const user = await loginUsuario(req.body);
 
-  const users = JSON.parse(fs.readFileSync(usersFile, "utf-8"));
-  const user = users.find(u => u.email === email && u.password === password);
+    // Crear el token incluyendo public_id para uso frontend
+    const token = jwt.sign(
+      { email: user.email, public_id: user.public_id },
+      SECRET_KEY,
+      { expiresIn: '2h  ' }
+    );
 
-  if (!user) {
-    return res.status(401).json({ message: "Credenciales inválidas" });
+    return res.json({ message: 'Login exitoso', token, user });
+  } catch (err) {
+    console.error('[authController.login] error:', err.message || err);
+    const status = err.status || 401;
+    return res.status(status).json({ message: err.message || 'Credenciales inválidas' });
   }
-
-  // Crear el token
-  const token = jwt.sign(
-    { id: user.id, email: user.email }, 
-    SECRET_KEY,
-    { expiresIn: "2h" } // expira en 2 horas
-  );
-
-  return res.json({ message: "Login exitoso", token, user });
 }
 
 module.exports = { login };

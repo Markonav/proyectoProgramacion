@@ -22,7 +22,7 @@ async function postLogin(req, res) {
     const user = await loginUsuario(req.body);
     // Generar token JWT con el email y fecha de creación
     const token = jwt.sign(
-      { email: user.email, createdAt: user.createdAt },
+      { email: user.email, public_id: user.public_id, createdAt: user.createdAt },
       JWT_SECRET,
       { expiresIn: '7d' }
     );

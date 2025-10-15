@@ -1,76 +1,43 @@
-
-const { leerLibros, escribirLibros } = require('../data/data');
+const { listarLibros, insertarLibro, borrarLibro, actualizarLibro } = require('../data/librosData');
 
 function agregarLibro(libro) {
-  const libros = leerLibros();
-
-  // Evita IDs duplicados
-  if (libros.find(l => Number(l.id) === Number(libro.id))) {
-    throw new Error('El ID ya está registrado');
+  // validar campos mínimos aquí (titulo, autor, categoria, PrecioRenta)
+  if (!libro.titulo || !libro.autor) {
+    const e = new Error('Campos requeridos');
+    e.code = 'INVALID';
+    throw e;
   }
-
-  // Evita títulos duplicados
-  if (libros.find(
-    l => (l.titulo || '').trim().toLowerCase() === (libro.titulo || '').trim().toLowerCase()
-  )) {
-    throw new Error('El título ya está registrado');
-  }
-
-  libros.push(libro);
-  escribirLibros(libros);
-  return libro;
+  // insertar en DB (insertarLibro lanza error si título duplicado)
+  return insertarLibro(libro);
 }
 
-function listarLibros() {
-  return leerLibros();
+function listar() {
+  return listarLibros();
 }
 
-function eliminarLibro(id) {
-  const libros = leerLibros();
-  const idx = libros.findIndex(l => Number(l.id) === Number(id));
-  if (idx === -1) return false;     
-  libros.splice(idx, 1);           
-  escribirLibros(libros);
-  return true;                      
+function eliminarLibroPorId(id) {
+  return borrarLibro(id);
 }
 
 function listarLibrosPorCategoria(categoria) {
-  const libros = leerLibros();
-  return libros.filter(
-    l => l.categoria && l.categoria.toLowerCase() === String(categoria).toLowerCase()
-  );
+  const all = listarLibros();
+  return all.filter(l => l.categoria && l.categoria.toLowerCase() === String(categoria).toLowerCase());
 }
 
 function listarCategorias() {
-  const libros = leerLibros();
-  const categorias = [...new Set(libros.map(l => l.categoria))];
-  return categorias;
+  const all = listarLibros();
+  return [...new Set(all.map(l => l.categoria))];
 }
 
 function editarLibro(id, cambios) {
-  const libros = leerLibros();
-  const idx = libros.findIndex(l => Number(l.id) === Number(id));
-  if (idx === -1) return null;
-
-  // Solo actualizar campos permitidos
-  const permitido = ['titulo', 'autor', 'categoria', 'sinopsis', 'PrecioRenta', 'cover'];
-  Object.keys(cambios).forEach(k => {
-    if (permitido.includes(k)) {
-      libros[idx][k] = cambios[k];
-    }
-  });
-
-  escribirLibros(libros);
-  return libros[idx];
+  return actualizarLibro(id, cambios);
 }
 
 module.exports = {
   agregarLibro,
-  listarLibros,
-  eliminarLibro,               
+  listarLibros: listar,
+  eliminarLibro: eliminarLibroPorId,
   listarLibrosPorCategoria,
-  listarCategorias
-  , editarLibro
+  listarCategorias,
+  editarLibro
 };
-
-
