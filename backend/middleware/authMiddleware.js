@@ -1,5 +1,4 @@
-const jwt = require("jsonwebtoken");
-const SECRET_KEY = "mi_clave_super_secreta";
+const { verificarToken: verifyTokenHelper } = require("../controllers/authController");
 
 function verificarToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -10,8 +9,8 @@ function verificarToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.user = decoded; // 👈 guarda los datos del usuario para usarlos en el controlador
+    const decoded = verifyTokenHelper(token);
+    req.user = decoded; // guarda los datos del usuario para usarlos en el controlador  
     next();
   } catch (err) {
     return res.status(401).json({ message: "Token inválido o expirado" });
