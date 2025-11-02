@@ -1,7 +1,6 @@
-const { registrarUsuario, loginUsuario, actualizarUsuario } = require('../services/userService');
-const { obtenerFavoritos, actualizarFavoritos } = require('../services/userService');
+const { registrarUsuario, loginUsuario, actualizarUsuario, cambiarContrasena, eliminarUsuario, obtenerFavoritos } = require('../services/userService');
+const { iniciarToken } = require('../controllers/authController');
 const jwt = require('jsonwebtoken');
-const { cambiarContrasena, eliminarUsuario } = require('../services/userService');
 
 async function postRegister(req, res) {
   try {
@@ -14,18 +13,11 @@ async function postRegister(req, res) {
 }
 
 
-// Clave secreta para JWT (en producción usar variable de entorno)
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecreto';
-
 async function postLogin(req, res) {
   try {
     const user = await loginUsuario(req.body);
     // Generar token JWT con el email y fecha de creación
-    const token = jwt.sign(
-      { email: user.email, public_id: user.public_id, createdAt: user.createdAt },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const token = iniciarToken(user);
     res.json({ user, token });
   } catch (e) {
     console.error('[postLogin]', e);
@@ -40,9 +32,19 @@ async function putUpdateUser(req, res) {
     // puede llegar un archivo multipart (avatar) o JSON
     console.log('[putUpdateUser] incoming req.file:', req.file);
     console.log('[putUpdateUser] incoming req.body keys:', Object.keys(req.body));
+    // verificar que el usuario en sesión es el mismo que el que se quiere actualizar
     const { email, nombre, apellido, nickname, removeAvatar } = req.body;
+    const usuarioSesion = req.user;
+    const cuentaACambiar = req.body;
+
+    if (!usuarioSesion){
+      const err = new Error('No autorizado'); err.status = 401; throw err;
+    }
     if (!email) {
       return res.status(400).json({ message: 'Email requerido' });
+    }
+    if (usuarioSesion.email !== cuentaACambiar.email) {
+      const err = new Error('No autorizado para cambiar datos'); err.status = 403; throw err;
     }
     // si multer guardó un archivo, construir la ruta relativa a /uploads
     let avatarUrl = undefined;
@@ -59,7 +61,22 @@ async function putUpdateUser(req, res) {
 
 async function putChangePassword(req, res) {
   try {
+    // verificar que el usuario en sesión es el mismo que el que se quiere actualizar
+    const usuarioSesion = req.user;
+    const cuentaACambiar = req.body;
+    if (!usuarioSesion){
+      const err = new Error('No autorizado'); err.status = 401; throw err;
+    }
+    if (usuarioSesion.email !== cuentaACambiar.email){
+      const err = new Error('No autorizado para cambiar esta contraseña'); err.status = 403; throw err;
+    }
     const { email, currentPassword, newPassword } = req.body;
+    if (!email) {
+      const err = new Error('Email requerido'); err.status = 400; throw err;
+    }
+    if (!currentPassword || !newPassword) {
+      const err = new Error('Contraseña actual y nueva son requeridas'); err.status = 400; throw err;
+    }
     const user = await cambiarContrasena({ email, currentPassword, newPassword });
     res.json({ message: 'Contraseña actualizada', user });
   } catch (e) {
@@ -71,7 +88,12 @@ async function putChangePassword(req, res) {
 // Obtener favoritos del usuario
 async function getUserFavs(req, res) {
   try {
-    const email = req.query.email;
+    // verificar que el usuario tenga sesión
+    const usuarioSesion = req.user;
+    if (!usuarioSesion){
+      const err = new Error('No autorizado'); err.status = 401; throw err;
+    }
+    const email = req.body.email;
     if (!email) return res.status(400).json({ message: 'Email requerido' });
     const favs = await obtenerFavoritos(email);
     res.json({ favs });
@@ -84,6 +106,11 @@ async function getUserFavs(req, res) {
 // Actualizar favoritos del usuario (body: { email, favs: { id: true } })
 async function putUserFavs(req, res) {
   try {
+    // verificar que el usuario tenga sesión
+    const usuarioSesion = req.user;
+    if (!usuarioSesion){
+      const err = new Error('No autorizado'); err.status = 401; throw err;
+    }
     const { email, favs } = req.body;
     if (!email) return res.status(400).json({ message: 'Email requerido' });
     const updated = await actualizarFavoritos(email, favs || {});
@@ -98,8 +125,16 @@ async function putUserFavs(req, res) {
 async function deleteUser(req, res) {
   try {
     const { email, password } = req.body;
+    const cuentaAEliminar = req.body;
+    const usuarioSesion = req.user;
+    if (!usuarioSesion){
+      const err = new Error('No autorizado'); err.status = 401; throw err;
+    }
+    if (usuarioSesion.email !== cuentaAEliminar.email){
+      const err = new Error('No autorizado para eliminar esta cuenta'); err.status = 403; throw err;
+    }
     const result = await eliminarUsuario({ email, password });
-    res.json(result);
+    res.json({message: 'Cuenta eliminada', result});
   } catch (e) {
     console.error('[deleteUser]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error eliminando usuario' });
