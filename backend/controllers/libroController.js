@@ -1,18 +1,30 @@
-
 const { agregarLibro, listarLibros, eliminarLibro, editarLibro } = require('../services/libroService');
 const { leerCategorias } = require('../data/categoriasData');
 
 function addLibro(req, res) {
   try {
     const { titulo, autor, categoria, sinopsis, PrecioRenta } = req.body;
-
-    if (!titulo || !autor || !categoria || PrecioRenta === undefined) {
-      return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    const user = req.user;
+    
+    if( !user ) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+    if (!titulo) {
+      return res.status(400).json({ message: 'El título es requerido' });
+    }
+    if (!autor) {
+      return res.status(400).json({ message: 'El autor es requerido' });
+    }
+    if (!categoria) {
+      return res.status(400).json({ message: 'La categoría es requerida' });
+    }
+    if (PrecioRenta === undefined) {
+      return res.status(400).json({ message: 'El PrecioRenta es requerido' });
+    }
+    if (PrecioRenta < 0 ||  isNaN(Number(PrecioRenta)) || PrecioRenta === "") {
+      return res.status(400).json({ message: 'El PrecioRenta debe ser un número no negativo' });
     }
 
-    if (PrecioRenta < 0 || isNaN(Number(PrecioRenta))) {
-      return res.status(400).json({ message: 'PrecioRenta debe ser un n\u00famero no negativo' });
-    }
 
     // si viene archivo multer lo coloca en req.file
     let coverPath = null;
@@ -30,29 +42,22 @@ function addLibro(req, res) {
       autor: String(autor).trim(),
       categoria: categoria,
       PrecioRenta: Number(PrecioRenta),
-      sinopsis: String(sinopsis).trim(),
+      sinopsis: sinopsis?.trim() || '',
       cover: coverPath
     };
 
-    try {
-      const creado = agregarLibro(nuevoLibro);
-      return res.status(201).json({ message: 'Libro agregado', libro: creado });
-    } catch (err) {
-      // errores esperados desde la capa de servicio
-      if (err && err.code === 'DUP_TITLE') {
-        return res.status(409).json({ message: err.message || 'Título duplicado' });
+    const creado = agregarLibro(nuevoLibro);
+    return res.status(201).json({ message: 'Libro agregado', libro: creado });
+  } catch (err) {
+      console.error('[addLibro] error:', err);
+      if (err.code === 'DUP_TITLE') {
+        return res.status(409).json({ message: 'El título ya está registrado' });
       }
-      if (err && err.code === 'INVALID') {
+      if (err.code === 'INVALID') {
         return res.status(400).json({ message: err.message || 'Datos inválidos' });
       }
-      console.error('[addLibro] error:', err && err.stack ? err.stack : err);
-      return res.status(500).json({ message: 'Error al agregar libro' });
-    }
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error al agregar libro' });
-  }
+      return res.status(500).json({ message: 'Error interno al agregar libro' });
+   }
 }
 
 function getLibros(req, res) {
@@ -77,6 +82,12 @@ function getLibroById(req, res) {
 
 function deleteLibro(req, res) {
   try {
+    // verificar que el usuario tenga sesión
+    const usuarioSesion = req.user;
+    if( !usuarioSesion ) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+    // verificar ID válido
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ message: 'ID inválido' });
@@ -90,8 +101,13 @@ function deleteLibro(req, res) {
   }
 }
 
-function updateLibro(req, res) {
+function updateLibro(req, res) {  
   try {
+    // verificar que el usuario tenga sesión
+    const usuarioSesion = req.user;
+    if( !usuarioSesion ) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ message: 'ID inválido' });
@@ -101,29 +117,27 @@ function updateLibro(req, res) {
     // En el formulario de edición esperamos los mismos campos que para agregar
     const { titulo, autor, categoria, sinopsis, PrecioRenta } = req.body;
 
-    // validar campos requeridos
-    if (!titulo || !autor || !categoria || PrecioRenta === undefined) {
-      return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    if (!titulo) {
+      return res.status(400).json({ message: 'El título es requerido' });
     }
-
-    // validar PrecioRenta numérico y no negativo
-    const precioNumerico = Number(PrecioRenta);
-    if (isNaN(precioNumerico) || precioNumerico < 0) {
-      return res.status(400).json({ message: 'PrecioRenta debe ser un número no negativo' });
+    if (!autor) {
+      return res.status(400).json({ message: 'El autor es requerido' });
     }
-
-    // validar título único (excluyendo el mismo libro)
-    const existentes = listarLibros();
-    const tituloTrim = String(titulo).trim().toLowerCase();
-    if (existentes.some(l => (l.id !== id) && (String(l.titulo || '').trim().toLowerCase() === tituloTrim))) {
-      return res.status(400).json({ message: 'El título ya está registrado' });
+    if (!categoria) {
+      return res.status(400).json({ message: 'La categoría es requerida' });
+    }
+    if (PrecioRenta === undefined) {
+      return res.status(400).json({ message: 'El PrecioRenta es requerido' });
+    }
+    if (PrecioRenta < 0 ||  isNaN(Number(PrecioRenta)) || PrecioRenta === "") {
+      return res.status(400).json({ message: 'El PrecioRenta debe ser un número no negativo' });
     }
 
     const cambios = {
       titulo: String(titulo).trim(),
       autor: String(autor).trim(),
       categoria: categoria,
-      PrecioRenta: precioNumerico
+      PrecioRenta: PrecioRenta
     };
 
     // Solo agregar sinopsis si viene en el body (puede ser vacía)
@@ -141,6 +155,9 @@ function updateLibro(req, res) {
     return res.json({ message: 'Libro actualizado', libro: actualizado });
   } catch (err) {
     console.error(err);
+    if (err.code === 'DUP_TITLE') {
+        return res.status(409).json({ message: 'El título ya está registrado' });
+      }
     return res.status(500).json({ message: 'Error al actualizar libro' });
   }
 }
