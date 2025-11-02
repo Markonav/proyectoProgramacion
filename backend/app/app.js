@@ -1,4 +1,4 @@
-
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -7,6 +7,7 @@ const cors = require('cors');
 const userRoutes = require('../routes/userRoutes');     
 const libroRoutes = require('../routes/libroRoutes');
 const categoriaRoutes = require('../routes/categoriaRoutes');
+const paypalRoutes = require('../routes/paypalRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../data/images')));
 app.use('/api/users', userRoutes);
 app.use('/api/libros', libroRoutes);
 app.use('/api/categorias', categoriaRoutes);
+app.use('/api/paypal/orders', paypalRoutes);
 
 // Servir página principal
 app.get('/', (req, res) => {
