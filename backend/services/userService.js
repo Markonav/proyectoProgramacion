@@ -1,9 +1,8 @@
-
 let bcrypt;
 try { bcrypt = require('bcrypt'); }
 catch { bcrypt = require('bcryptjs'); }
 
-const { findByEmail, createUser, updateByEmail, deleteByEmail } = require('../data/usersData');
+const { buscarPorEmail, crearUsuario, actualizarPorEmail, borrarPorEmail } = require('../data/usersData');
 
 const SALT_ROUNDS = 10;
 
@@ -34,12 +33,12 @@ function validarCredenciales(email, password) {
 async function registrarUsuario({ email, password }) {
   const e = normEmail(email);
   validarCredenciales(e, password);
-  if (findByEmail(e)) {
+  if (buscarPorEmail(e)) {
     const err = new Error('El correo ya está registrado'); err.status = 409; throw err;
   }
 
   const passwordHash = await bcrypt.hash(String(password), SALT_ROUNDS);
-  const nuevo = createUser({ email: e, passwordHash });
+  const nuevo = crearUsuario({ email: e, passwordHash });
   const { passwordHash: _discard, ...safe } = nuevo;
   return safe;
 }
@@ -47,12 +46,12 @@ async function registrarUsuario({ email, password }) {
 async function loginUsuario({ email, password }) {
   const e = normEmail(email);
   const pass = String(password ?? '');
-  const user = findByEmail(e);
+  const user = buscarPorEmail(e);
   if (!user) { const err = new Error('Correo o contraseña incorrectos'); err.status = 401; throw err; }
 
   if (!user.passwordHash && user.password && !String(user.password).startsWith('$2')) {
     const newHash = await bcrypt.hash(String(user.password), SALT_ROUNDS);
-    await updateByEmail(e, { passwordHash: newHash });
+    await actualizarPorEmail(e, { passwordHash: newHash });
     user.passwordHash = newHash;
   }
 
@@ -67,7 +66,7 @@ async function loginUsuario({ email, password }) {
 async function obtenerFavoritos(email) {
   if (!email) { const err = new Error('Email requerido'); err.status = 400; throw err; }
   const e = normEmail(email);
-  const user = findByEmail(e);
+  const user = buscarPorEmail(e);
   if (!user) { const err = new Error('Usuario no encontrado'); err.status = 404; throw err; }
   return user.favs || {};
 }
@@ -76,10 +75,10 @@ async function obtenerFavoritos(email) {
 async function actualizarFavoritos(email, favs) {
   if (!email) { const err = new Error('Email requerido'); err.status = 400; throw err; }
   const e = normEmail(email);
-  const user = findByEmail(e);
+  const user = buscarPorEmail(e);
   if (!user) { const err = new Error('Usuario no encontrado'); err.status = 404; throw err; }
   const merged = Object.assign({}, user.favs || {}, favs);
-  const updated = updateByEmail(e, { favs: merged });
+  const updated = actualizarPorEmail(e, { favs: merged });
   return updated.favs || {};
 }
 
@@ -91,7 +90,7 @@ async function actualizarUsuario({ email, nombre, apellido, nickname }) {
     throw err;
   }
   const e = normEmail(email);
-  const existing = findByEmail(e);
+  const existing = buscarPorEmail(e);
   if (!existing) { const err = new Error('Usuario no encontrado'); err.status = 404; throw err; }
   // Validar y actualizar campos si se proveen
   if (typeof nombre === 'string') {
@@ -107,7 +106,7 @@ async function actualizarUsuario({ email, nombre, apellido, nickname }) {
   }
   if (typeof nickname === 'string') {
     if (!validNick(nickname)) {
-      const err = new Error('Nickname inválido. Solo letras, números y _ (3-20 caracteres).'); err.status = 400; throw err;
+      const err = new Error('Nickname inválido. Solo letras, números y _ (3-8 caracteres).'); err.status = 400; throw err;
     }
     
   }
@@ -118,7 +117,7 @@ async function actualizarUsuario({ email, nombre, apellido, nickname }) {
   if (typeof nickname === 'string') changes.nickname = nickname;
   if (typeof arguments[0].avatarUrl === 'string') changes.avatarUrl = arguments[0].avatarUrl;
   if (arguments[0].removeAvatar === 'true' || arguments[0].removeAvatar === true) changes.removeAvatar = true;
-  const updated = updateByEmail(e, changes);
+  const updated = actualizarPorEmail(e, changes);
   const { passwordHash, password, ...safe } = updated;
   return safe;
 }
@@ -131,15 +130,21 @@ async function cambiarContrasena({ email, currentPassword, newPassword }) {
   if (!currentPassword) {
     const err = new Error('Contraseña actual requerida'); err.status = 400; throw err;
   }
+  if (!newPassword) {
+    const err = new Error('Nueva contraseña requerida'); err.status = 400; throw err;
+  }
+  if(currentPassword === newPassword) {
+    const err = new Error('La nueva contraseña debe ser diferente a la actual'); err.status = 400; throw err;
+  }
   validarCredenciales(email, newPassword);
 
   const e = normEmail(email);
-  const user = findByEmail(e);
+  const user = buscarPorEmail(e);
   if (!user) { const err = new Error('Usuario no encontrado'); err.status = 404; throw err; }
   const ok = await bcrypt.compare(String(currentPassword), user.passwordHash || '');
   if (!ok) { const err = new Error('Contraseña actual incorrecta'); err.status = 401; throw err; }
   const newHash = await bcrypt.hash(String(newPassword), SALT_ROUNDS);
-  const updated = updateByEmail(e, { passwordHash: newHash });
+  const updated = actualizarPorEmail(e, { passwordHash: newHash });
   const { passwordHash, password, ...safe } = updated;
   return safe;
 }
@@ -152,6 +157,7 @@ async function eliminarUsuario({ email, password }) {
   if (!password) {
     const err = new Error('Contraseña requerida para eliminar cuenta'); err.status = 400; throw err;
   }
+  
 
   const e = normEmail(email);
   const user = findByEmail(e);
