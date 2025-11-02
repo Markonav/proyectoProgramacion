@@ -17,9 +17,8 @@ function obtenerLibro(id) {
 }
 
 function insertarLibro(libro) {
-  // opcional: chequear título duplicado primero
-  const dup = stmtFindByTitulo.get(libro.titulo || '');
-  if (dup) {
+  const existe = buscarLibroPorTitulo(libro.titulo);
+  if (existe) {
     const e = new Error('El título ya está registrado');
     e.code = 'DUP_TITLE';
     throw e;  
@@ -54,4 +53,8 @@ function borrarLibro(id) {
   return info.changes > 0;
 }
 
-module.exports = { listarLibros, obtenerLibro, insertarLibro, actualizarLibro, borrarLibro };
+function buscarLibroPorTitulo(titulo) {
+  return stmtFindByTitulo.get(titulo) || null;
+}
+
+module.exports = { listarLibros, obtenerLibro, insertarLibro, actualizarLibro, borrarLibro, buscarLibroPorTitulo };
