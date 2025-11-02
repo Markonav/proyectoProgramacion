@@ -1,5 +1,7 @@
 const { leerCategorias } = require('../data/categoriasData');
 
-exports.obtenerCategorias = async () => {
+async function obtenerCategorias() {
   return leerCategorias();
-};
+}
+
+module.exports = { obtenerCategorias };
