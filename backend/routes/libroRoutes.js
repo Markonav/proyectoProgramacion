@@ -1,11 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const { verificarToken } = require("../middleware/authMiddleware");
 const { addLibro, getLibros, getLibroById, deleteLibro, updateLibro } = require("../controllers/libroController");
 const multer = require('multer');
 const path = require('path');
 
 // Configuracion multer
-const imagesDir = path.join(__dirname, '../data/images');
+const UPLOAD_DIR = process.env.UPLOAD_DIR;
+
+let imagesDir;
+if (UPLOAD_DIR) {
+  imagesDir = path.isAbsolute(UPLOAD_DIR) ? UPLOAD_DIR : path.resolve(process.cwd(), UPLOAD_DIR);
+} else {
+  imagesDir = path.join(__dirname, '../data/images');
+}
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, imagesDir);
@@ -18,11 +26,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post("/", upload.single('cover'), addLibro);
+router.post("/", verificarToken, upload.single('cover'), addLibro);
 router.get("/", getLibros);
 router.get("/:id", getLibroById);
-router.put("/:id", upload.single('cover'), updateLibro);
-router.delete("/:id", deleteLibro);
+router.put("/:id", verificarToken, upload.single('cover'), updateLibro);
+router.delete("/:id", verificarToken, deleteLibro);
 
 module.exports = router;
 
