@@ -86,7 +86,22 @@
                 try {
                     const res = await fetch('http://localhost:3000/api/categorias');
                     if (!res.ok) throw new Error('Error al cargar categorías');
-                    this.categorias = await res.json();
+                    const json = await res.json();
+
+                    let raw = [];
+                    if (Array.isArray(json)) raw = json;
+                    else if (Array.isArray(json.categorias)) raw = json.categorias;
+                    else if (Array.isArray(json.data)) raw = json.data;
+                    else raw = [];
+
+                    // Si los items vienen como objetos, extraemos una representación 'nombre'
+                    if (raw.length > 0 && typeof raw[0] === 'object') {
+                        this.categorias = raw.map(c => c.nombre ?? c.name ?? c.slug ?? String(c));
+                    } else {
+                        // Será array de strings o vacío
+                        this.categorias = raw.map(String);
+                    }
+
                     // Selecciona la primera categoría automáticamente si hay categorías y no hay una seleccionada
                     if (this.categorias.length > 0 && !this.categoriaSeleccionada) {
                         this.categoriaSeleccionada = this.categorias[0];
@@ -113,6 +128,7 @@
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user || !user.email) {
                 window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Inicia sesión para usar favoritos', type: 'info', duration: 2800 } }));
+                this.$router.push({ name: 'Login' });
                 return;
             }
             book.favorite = !book.favorite;
