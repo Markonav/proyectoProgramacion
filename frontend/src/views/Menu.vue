@@ -156,7 +156,23 @@ export default {
       try {
         const res = await fetch('http://localhost:3000/api/categorias');
         if (!res.ok) throw new Error('Error al cargar categorías');
-        this.categorias = await res.json();
+
+        const json = await res.json();
+
+        let raw = [];
+        if (Array.isArray(json)) raw = json;
+        else if (Array.isArray(json.categorias)) raw = json.categorias;
+        else if (Array.isArray(json.data)) raw = json.data;
+        else raw = [];
+
+        // Si los items vienen como objetos, extraemos una representación 'nombre'
+        if (raw.length > 0 && typeof raw[0] === 'object') {
+            this.categorias = raw.map(c => c.nombre ?? c.name ?? c.slug ?? String(c));
+        } else {
+            // Será array de strings o vacío
+            this.categorias = raw.map(String);
+        }
+
         if (this.categorias.length > 0 && !this.categoriaSeleccionada) {
             this.categoriaSeleccionada = this.categorias[0];
         }
