@@ -24,7 +24,7 @@ function leerUsuarios() {
 }
 
 
-function createUser({ email, passwordHash, nombre, apellido, nickname, avatar }) {
+function crearUsuario({ email, passwordHash, nombre, apellido, nickname, avatar }) {
   const public_id = uuidv4();
   const createdAt = new Date().toISOString();
   const sql = `INSERT INTO usuarios (public_id, email, passwordHash, createdAt, nombre, apellido, nickname, favoritos, avatar)
@@ -47,7 +47,7 @@ function createUser({ email, passwordHash, nombre, apellido, nickname, avatar })
   }
 }
 
-function findByEmail(email) {
+function buscarPorEmail(email) {
   const row = db.prepare('SELECT * FROM usuarios WHERE LOWER(email) = LOWER(?)').get(email);
   if (!row) return null;
   row.favs = row.favoritos ? safeJsonParse(row.favoritos, {}) : {};
@@ -55,10 +55,10 @@ function findByEmail(email) {
   return row;
 }
 
-function updateByEmail(email, updates) {
+function actualizarPorEmail(email, updates) {
   const allowed = new Set(['nombre', 'apellido', 'nickname', 'avatar', 'passwordHash', 'favoritos']);
   const keys = Object.keys(updates || {}).filter(k => allowed.has(k) || k === 'favs' || k === 'avatarUrl' || k === 'removeAvatar');
-  if (keys.length === 0) return findByEmail(email);
+  if (keys.length === 0) return buscarPorEmail(email);
 
   const clauses = [];
   const values = [];
@@ -83,13 +83,13 @@ function updateByEmail(email, updates) {
 
   const sql = `UPDATE usuarios SET ${clauses.join(', ')} WHERE LOWER(email) = LOWER(?)`;
   db.prepare(sql).run(...values, email);
-  return findByEmail(email);
+  return buscarPorEmail(email);
 }
 
-function deleteByEmail(email) {
+function borrarPorEmail(email) {
   const stmt = db.prepare('DELETE FROM usuarios WHERE LOWER(email) = LOWER(?)');
   const info = stmt.run(email);
   return info.changes > 0;
 }
 
-module.exports = { leerUsuarios, createUser, findByEmail, updateByEmail, deleteByEmail };
+module.exports = { leerUsuarios, crearUsuario, buscarPorEmail, actualizarPorEmail, borrarPorEmail };
