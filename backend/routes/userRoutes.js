@@ -1,13 +1,18 @@
-
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
+const { verificarToken } = require("../middleware/authMiddleware");
 const { postRegister, postLogin, putUpdateUser, putChangePassword, getUserFavs, putUserFavs, deleteUser } = require('../controllers/userController');
 
 const router = express.Router();
 
-// Multer config for user avatars (store in backend/data/images)
-const imagesDir = path.join(__dirname, '../data/images');
+const UPLOAD_DIR = process.env.UPLOAD_DIR;
+let imagesDir;
+if (UPLOAD_DIR) {
+  imagesDir = path.isAbsolute(UPLOAD_DIR) ? UPLOAD_DIR : path.resolve(process.cwd(), UPLOAD_DIR);
+} else {
+  imagesDir = path.join(__dirname, '../data/images');
+}
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, imagesDir);
@@ -24,14 +29,14 @@ router.post('/register', postRegister);
 
 router.post('/login', postLogin);
 // Cambiar contraseña
-router.put('/password', putChangePassword);
+router.put('/password', verificarToken, putChangePassword);
 // Ruta para actualizar datos de usuario - acepta un archivo 'avatar' opcional
-router.put('/update', upload.single('avatar'), putUpdateUser);
+router.put('/update', verificarToken, upload.single('avatar'), putUpdateUser);
 // Favoritos: obtener y actualizar
-router.get('/favs', getUserFavs);
-router.put('/favs', putUserFavs);
+router.get('/favs', verificarToken, getUserFavs);
+router.put('/favs', verificarToken, putUserFavs);
 // Eliminar cuenta de usuario
-router.delete('/delete', deleteUser);
+router.delete('/delete', verificarToken, deleteUser);
 
 module.exports = router;
 
