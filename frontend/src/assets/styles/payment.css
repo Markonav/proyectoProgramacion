@@ -1,0 +1,188 @@
+.payment-page {
+    max-width: 1100px;
+    margin: 18px auto;
+    padding: 18px;
+}
+
+.payment-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.pay-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #eef0f2;
+}
+
+.pay-option input[type="radio"] {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    accent-color: #ff7a18;
+}
+
+.pay-option img {
+    width: 86px;
+    height: 54px;
+    object-fit: contain;
+    background: #fafafa;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.card-icon {
+    width: 86px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    border-radius: 6px;
+}
+
+.pay-name {
+    font-weight: 700;
+}
+
+.pay-desc {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.payment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn.primary {
+    background: #ff7a18;
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+.btn.secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+/* Progress bar */
+.checkout-progress {
+    max-width: 1100px;
+    margin: 18px auto;
+    padding: 12px;
+}
+
+.steps {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 140px;
+}
+
+.circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #444;
+}
+
+.step .label {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.step.active .circle {
+    background: #ff7a18;
+    color: #fff;
+}
+
+.step.done .circle {
+    background: #0a7b3d;
+    color: #fff;
+}
+
+.connector {
+    flex: 1;
+    height: 6px;
+    background: #eee;
+    border-radius: 6px;
+}
+
+.connector.active {
+    background: linear-gradient(90deg,#ff7a18,#ffd0b2);
+}
+
+/* Visual for selected payment */
+.pay-option input[type="radio"]:checked + img {
+    box-shadow: 0 6px 18px rgba(20,20,20,0.06);
+    border: 1px solid #ffd0b2;
+}
+
+.pay-option input[type="radio"]:checked ~ div .pay-name {
+    color: #ff7a18;
+}
+
+/* Order summary (visual, static) */
+.order-summary {
+    margin: 12px auto 18px;
+    max-width: 760px;
+    padding: 12px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #eef0f2;
+}
+
+.order-line {
+    display: flex;
+    justify-content: space-between;
+    color: #333;
+    padding: 6px 0;
+}
+
+.order-line .muted {
+    color: #666;
+}
+
+.order-line.total {
+    font-weight: 800;
+    font-size: 1.05rem;
+}
+
+.order-line .value {
+    color: #333;
+}
+
+.order-line .total-amount {
+    color: #0a7b3d;
+}

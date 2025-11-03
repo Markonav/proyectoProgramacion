@@ -13,6 +13,8 @@ import Tendencia from '@/views/Tendencia.vue'
 import MásLeídos from '@/views/MásLeídos.vue'
 import LibroDetalle from '@/views/LibroDetalle.vue'
 import Search from '@/views/Search.vue'
+import Checkout from '@/views/Checkout.vue'
+import Payment from '@/views/Payment.vue'
 
 
 // Función para verificar si el usuario tiene sesión activa
@@ -33,6 +35,8 @@ const router = createRouter({
     { path: '/libro/:id', name: 'LibroDetalle', component: LibroDetalle },
     { path: '/search', name: 'Search', component: Search },
     { path: '/login', component: Login },
+    { path: '/checkout', component: Checkout },
+    { path: '/checkout/payment', component: Payment },
     { 
       path: '/agregarLibro', 
       component: AgregarLibro,
