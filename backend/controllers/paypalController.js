@@ -70,10 +70,10 @@ async function patchUpdateOrderAmount(req, res) {
         if(!newTotal || isNaN(Number(newTotal)) || Number(newTotal) <= 0) {
             return res.status(400).json({ message: 'Nuevo monto inválido' });
         }
+        
+        await updateOrderAmount(orderId, newTotal, currency);
 
-        const updatedOrder = await updateOrderAmount(orderId, newTotal, currency);
-
-        res.status(200).json({ message: 'Monto de la orden actualizado', updatedOrder, timestamp: new Date().toISOString() });
+        res.status(200).json({ message: 'Monto de la orden actualizado', timestamp: new Date().toISOString() });
     } catch (error) {
         if (error.message.includes('Timeout')) {
             return res.status(504).json({ error: 'Timeout: PayPal no respondió a tiempo' });
