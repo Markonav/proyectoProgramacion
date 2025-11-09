@@ -12,7 +12,6 @@ PayPal REST API
 - **POST** `/v2/checkout/orders/{order_id}/capture`: Capturar pago  
 - **GET** `/v2/checkout/orders/{order_id}`: Obtener detalles  
 - **PATCH** `/v2/checkout/orders/{order_id}`: Actualizar orden  
-- **POST** `/v2/checkout/orders/{order_id}/track`: Añadir tracking
 
 ## Ejemplo de respuesta
 ```json 
