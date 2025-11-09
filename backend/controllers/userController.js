@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 async function postRegister(req, res) {
   try {
     const user = await registrarUsuario(req.body); 
-    res.status(201).json(user);
+    res.status(201).json({ message: 'Usuario registrado con éxito', data: { id: user.public_id, email: user.email }, timestamp: user.createdAt });
   } catch (e) {
     console.error('[postRegister]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error registrando usuario' });
@@ -18,7 +18,7 @@ async function postLogin(req, res) {
     const user = await loginUsuario(req.body);
     // Generar token JWT con el email y fecha de creación
     const token = iniciarToken(user);
-    res.json({ user, token });
+    res.status(200).json({ message: 'Login exitoso', token, user: { id: user.public_id, email: user.email, nombre: user.nombre, apellido: user.apellido, nickname: user.nickname, avatarUrl: user.avatarUrl } });
   } catch (e) {
     console.error('[postLogin]', e);
     res.status(e.status || 401).json({ message: e.message || 'Login inválido' });
@@ -52,7 +52,7 @@ async function putUpdateUser(req, res) {
       avatarUrl = `/uploads/${req.file.filename}`;
     }
     const user = await actualizarUsuario({ email, nombre, apellido, nickname, avatarUrl, removeAvatar });
-    res.json(user);
+    res.status(200).json({ message: 'Usuario actualizado', user: { id: user.public_id, email: user.email, nombre: user.nombre, apellido: user.apellido, nickname: user.nickname, avatarUrl: user.avatarUrl } });
   } catch (e) {
     console.error('[putUpdateUser]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error actualizando usuario' });
@@ -78,7 +78,7 @@ async function putChangePassword(req, res) {
       const err = new Error('Contraseña actual y nueva son requeridas'); err.status = 400; throw err;
     }
     const user = await cambiarContrasena({ email, currentPassword, newPassword });
-    res.json({ message: 'Contraseña actualizada', user });
+    res.status(200).json({ message: 'Contraseña actualizada', user: { id: user.public_id, email: user.email } });
   } catch (e) {
     console.error('[putChangePassword]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error cambiando contraseña' });
@@ -96,7 +96,7 @@ async function getUserFavs(req, res) {
     const email = req.body.email;
     if (!email) return res.status(400).json({ message: 'Email requerido' });
     const favs = await obtenerFavoritos(email);
-    res.json({ favs });
+    res.status(200).json({ message: 'Favoritos obtenidos', user: { id: user.public_id, email: user.email, favs } });
   } catch (e) {
     console.error('[getUserFavs]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error obteniendo favoritos' });
@@ -114,7 +114,7 @@ async function putUserFavs(req, res) {
     const { email, favs } = req.body;
     if (!email) return res.status(400).json({ message: 'Email requerido' });
     const updated = await actualizarFavoritos(email, favs || {});
-    res.json({ favs: updated });
+    res.status(200).json({ message: 'Favoritos actualizados', user: { id: user.public_id, email: user.email, favs: updated } });
   } catch (e) {
     console.error('[putUserFavs]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error actualizando favoritos' });
@@ -134,7 +134,7 @@ async function deleteUser(req, res) {
       const err = new Error('No autorizado para eliminar esta cuenta'); err.status = 403; throw err;
     }
     const result = await eliminarUsuario({ email, password });
-    res.json({message: 'Cuenta eliminada', result});
+    res.status(200).json({message: 'Cuenta eliminada', result});
   } catch (e) {
     console.error('[deleteUser]', e);
     res.status(e.status || 400).json({ message: e.message || 'Error eliminando usuario' });
