@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { verificarToken } = require("../middleware/authMiddleware");
 const { addLibro, getLibros, getLibroById, deleteLibro, updateLibro } = require("../controllers/libroController");
+const { getReviews, postReview } = require("../controllers/libroController");
 const multer = require('multer');
 const path = require('path');
 
@@ -29,6 +30,8 @@ const upload = multer({ storage });
 router.post("/", verificarToken, upload.single('cover'), addLibro);
 router.get("/", getLibros);
 router.get("/:id", getLibroById);
+router.get("/:id/reviews", getReviews);
+router.post("/:id/reviews", verificarToken, postReview);
 router.put("/:id", verificarToken, upload.single('cover'), updateLibro);
 router.delete("/:id", verificarToken, deleteLibro);
 

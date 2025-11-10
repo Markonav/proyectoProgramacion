@@ -1,5 +1,6 @@
 const { agregarLibro, listarLibros, eliminarLibro, editarLibro } = require('../services/libroService');
 const { leerCategorias } = require('../data/categoriasData');
+const { obtenerResenasPorLibro, insertarResena, existeResena } = require('../data/reviewsData');
 
 function addLibro(req, res) {
   try {
@@ -77,6 +78,58 @@ function getLibroById(req, res) {
     return res.json(libro);
   } catch {
     return res.status(500).json({ message: 'Error al obtener libro' });
+  }
+}
+
+// reviews
+function getReviews(req, res) {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ message: 'ID inválido' });
+    const rows = obtenerResenasPorLibro(id);
+    return res.json(rows);
+  } catch (err) {
+    console.error('[getReviews] ', err);
+    return res.status(500).json({ message: 'Error al obtener reseñas' });
+  }
+}
+
+function postReview(req, res) {
+  try {
+    const usuario = req.user;
+    if (!usuario) return res.status(401).json({ message: 'No autorizado' });
+    const libroId = Number(req.params.id);
+    if (!Number.isInteger(libroId) || libroId <= 0) return res.status(400).json({ message: 'ID inválido' });
+    const { rating, comment } = req.body;
+    if (!comment || String(comment).trim() === '') return res.status(400).json({ message: 'El comentario es requerido' });
+    const r = Number(rating);
+    if (!Number.isInteger(r) || r < 1 || r > 5) return res.status(400).json({ message: 'La calificación debe ser un entero entre 1 y 5' });
+
+    // evitar más de una reseña por usuario (email) por libro
+    const email = usuario.email || null;
+    if (!email) return res.status(400).json({ message: 'Usuario sin email no permitido' });
+    if (existeResena(libroId, email)) {
+      return res.status(409).json({ message: 'Ya tienes una reseña para este libro' });
+    }
+
+    const rev = {
+      libro_id: libroId,
+      // nickname como preferencia para mostrar usuario
+      user: usuario.nickname || usuario.name || usuario.email || 'Anónimo',
+      email: email,
+      rating: r,
+      comment: String(comment).trim(),
+      date: new Date().toISOString()
+    };
+    const inserted = insertarResena(rev);
+    return res.status(201).json({ message: 'Reseña agregada', review: inserted });
+  } catch (err) {
+    console.error('[postReview] ', err);
+    // detectar violación de índice único
+    if (err && err.code && (err.code === 'SQLITE_CONSTRAINT' || err.message && err.message.includes('UNIQUE'))) {
+      return res.status(409).json({ message: 'Ya existe una reseña para este libro por este usuario' });
+    }
+    return res.status(500).json({ message: 'Error al guardar reseña' });
   }
 }
 
@@ -162,5 +215,5 @@ function updateLibro(req, res) {
   }
 }
 
-module.exports = { addLibro, getLibros, getLibroById, deleteLibro, updateLibro };
+module.exports = { addLibro, getLibros, getLibroById, deleteLibro, updateLibro, getReviews, postReview };
 
