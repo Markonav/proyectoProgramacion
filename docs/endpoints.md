@@ -186,11 +186,19 @@
 
 ### 14) `GET /api/reviews/:id` — listar reseñas
 #### Petición
-`GET /api/reviews:5`
+`GET /api/reviews/5`
 
 #### Respuesta 
 ```json
 { "id":5, "libro_id":1759609691924, "user":"bstn@gmail.com", "email":"bstn@gmail.com", "rating":3, "comment":"buen libro", "date":"2025-11-10T00:52:54.150Z"}
+```
+### 15) `POST /api/reviews/:id` — subir reseña
+#### Petición
+- Campos: `rating`, `comment`
+
+#### Respuesta 
+```json
+{ "message": "Reseña agregada", "resena": { "id": 6, "libro_id": "1759609691924", "user": "ASD", "email": "bstn@gmail.com", "rating": 4, "comment": "buen libro", "date": "2025-11-10T00:52:54.150Z"} }
 ```
 # API externa 
 
