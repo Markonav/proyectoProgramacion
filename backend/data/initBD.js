@@ -1,6 +1,4 @@
-const Database = require('better-sqlite3');
-const db = new Database('./app.db');
-
+const db = require('./db');
 
 // Crear tabla libros si no existe
 db.exec(`
@@ -11,7 +9,7 @@ CREATE TABLE IF NOT EXISTS libros (
     categoria TEXT NOT NULL,
     PrecioRenta INTEGER NOT NULL,
     cover TEXT,
-    sinopsis TEXT,  
+    sinopsis TEXT,
     tendencia INTEGER CHECK (tendencia IN (0,1)) DEFAULT 0,
     masLeido INTEGER CHECK (masLeido IN (0,1)) DEFAULT 0,
     novedad INTEGER CHECK (novedad IN (0,1)) DEFAULT 0
@@ -42,5 +40,18 @@ CREATE TABLE IF NOT EXISTS usuarios (
 );
 `);
 
-    
+// Crear tabla reviews si no existe
+db.exec(`
+CREATE TABLE IF NOT EXISTS reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  libro_id INTEGER NOT NULL,
+  user TEXT,
+  email TEXT,
+  rating INTEGER CHECK(rating >= 0 AND rating <= 5) DEFAULT 0,
+  comment TEXT,
+  date TEXT,
+  FOREIGN KEY(libro_id) REFERENCES libros(id) ON DELETE CASCADE
+);
+`);
+
 console.log('Base de datos inicializada');

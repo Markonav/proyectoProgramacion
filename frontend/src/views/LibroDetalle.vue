@@ -54,8 +54,22 @@
             </div>
           </div>
         </aside>
+        <!-- Lista de opiniones mostradas debajo del formulario -->
+        <div class="reviews-list">
+          <h2>Opiniones</h2>
+          <div v-if="!reviews.length" class="no-reviews">Sé el primero en opinar sobre este libro.</div>
+          <ul v-else class="review-items">
+            <li v-for="(r, idx) in reviews" :key="idx" class="review-item">
+              <div class="review-header">
+                <div class="review-author">{{ r.user || 'Anónimo' }}</div>
+                <div class="review-date">{{ formatDate(r.date) }}</div>
+              </div>
+              <div class="review-stars">{{ '★'.repeat(Number(r.rating || 0)) + '☆'.repeat(5 - Number(r.rating || 0)) }}</div>
+              <p class="review-text">{{ r.comment }}</p>
+            </li>
+          </ul>
+        </div>
       </section>
-      <!-- Aquí podrías agregar un componente de reseñas -->
     </main>
     <Footer />
   </div>
@@ -104,18 +118,16 @@
         }
         },
         // reviews handling
-        loadReviews() {
+        async loadReviews() {
           const id = this.$route.params.id;
           try {
-            const raw = localStorage.getItem(`reviews_${id}`) || '[]';
-            this.reviews = JSON.parse(raw);
+            const res = await fetch(`http://localhost:3000/api/libros/${id}/reviews`);
+            if (!res.ok) throw new Error('No se pudieron cargar reseñas');
+            const data = await res.json();
+            this.reviews = Array.isArray(data) ? data : [];
           } catch (e) {
             this.reviews = [];
           }
-        },
-        saveReviews() {
-          const id = this.$route.params.id;
-          localStorage.setItem(`reviews_${id}`, JSON.stringify(this.reviews));
         },
         setRating(n) { this.newReview.rating = n },
         countFor(star) {
@@ -127,32 +139,55 @@
         },
         async submitReview() {
           const user = JSON.parse(localStorage.getItem('user') || 'null');
-          if (!user || !user.email) { this.$router.push('/login'); return }
+          const token = localStorage.getItem('token') || '';
+          if (!user || !user.email || !token) { this.$router.push('/login'); return }
           if (!this.newReview.comment.trim()) {
             window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Escribe un comentario antes de enviar', type: 'info', duration: 2000 } }));
+            return;
+          }
+          if (!this.newReview.rating || Number(this.newReview.rating) < 1) {
+            window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Selecciona una calificación (1-5 estrellas)', type: 'info', duration: 2000 } }));
             return;
           }
           this.submitting = true;
           try {
             const id = this.$route.params.id;
-            const entry = {
-              user: user.name || user.email || 'Anónimo',
-              email: user.email || '',
+            const payload = {
               rating: this.newReview.rating,
-              comment: this.newReview.comment.trim(),
-              date: new Date().toISOString()
+              comment: this.newReview.comment.trim()
             };
-            this.reviews.unshift(entry);
-            this.saveReviews();
+            const res = await fetch(`http://localhost:3000/api/libros/${id}/reviews`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(()=>({}));
+              throw new Error(err.message || 'Error al guardar reseña');
+            }
+            const data = await res.json();
+            // agregar la reseña que devolvió el backend
+            if (data && data.review) {
+              this.reviews.unshift(data.review);
+            }
             this.newReview.comment = '';
-            // reset to no stars selected
             this.newReview.rating = 0;
             window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'Gracias por tu opinión', type: 'success', duration: 2200 } }));
           } catch (e) {
-            window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: 'No se pudo guardar la opinión', type: 'error', duration: 2200 } }));
+            window.dispatchEvent(new CustomEvent('app:toast', { detail: { message: e.message || 'No se pudo guardar la opinión', type: 'error', duration: 2200 } }));
           } finally {
             this.submitting = false;
           }
+        },
+        formatDate(iso) {
+          if (!iso) return '';
+          try {
+            const d = new Date(iso);
+            return d.toLocaleString('es-CL', { year: 'numeric', month: 'short', day: '2-digit' });
+          } catch (e) { return iso }
         },
         addToCart(book) {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -273,7 +308,18 @@
   transform: translateY(-5px) scale(1.28);
   color: #ffb400;
 }
-.write-review textarea { width:100%; resize:vertical; padding:10px; border-radius:6px; border:1px solid #e8e8e8 }
+.write-review textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; /* include padding in width to avoid overflow */
+  resize: vertical;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
+  min-height: 90px; 
+  max-height: 240px; 
+  overflow: auto;
+}
 .review-actions { display:flex; align-items:center; gap:12px; margin-top:10px }
 .muted { color:#777 }
 
@@ -288,6 +334,17 @@
 .bar-track { flex:1; height:10px; background:#eee; border-radius:6px; overflow:hidden }
 .bar-fill { height:100%; background:linear-gradient(90deg,#ffb400,#ff7a18); border-radius:6px }
 .bar-count { width:36px; text-align:left; color:#444 }
+
+.reviews-list { grid-column: 1 / -1; background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+.reviews-list h2 { margin: 0 0 10px 0 }
+.no-reviews { color:#666; padding: 8px 0 }
+.review-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px }
+.review-item { padding: 12px; border-radius: 8px; background: #fafafa; border: 1px solid #f0f0f0 }
+.review-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px }
+.review-author { font-weight:700 }
+.review-date { color:#777; font-size:0.9rem }
+.review-stars { color:#ffb400; margin-bottom:8px }
+.review-text { margin: 0; color:#222 }
 
 @media (max-width: 880px) {
   .reviews { grid-template-columns: 1fr; }
