@@ -182,6 +182,16 @@
 ```json
 [ "Ficción", "No Ficción", "Ciencia", "Historia" ]
 ```
+## Reseñas
+
+### 14) `GET /api/reviews/:id` — listar reseñas
+#### Petición
+`GET /api/reviews:5`
+
+#### Respuesta 
+```json
+{ "id":5, "libro_id":1759609691924, "user":"bstn@gmail.com", "email":"bstn@gmail.com", "rating":3, "comment":"buen libro", "date":"2025-11-10T00:52:54.150Z"}
+```
 # API externa 
 
 ### 1) `POST /api/paypal/orders` - crear orden de pago
